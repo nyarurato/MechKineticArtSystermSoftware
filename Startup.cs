@@ -10,6 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ElectronNET.API;
+using ElectronNET.API.Entities;
+
 
 namespace MechKineticsArtSoftware
 {
@@ -28,7 +31,11 @@ namespace MechKineticsArtSoftware
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
+            services.AddSingleton<LogWriter>();
+            services.AddSingleton<ConfigManager>();
+            services.AddSingleton<KeyFrameManager>();
+            services.AddSingleton<WebAPIDatas>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +62,32 @@ namespace MechKineticsArtSoftware
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
+            if (HybridSupport.IsElectronActive)
+            {
+                ElectronBootstrap();
+            }
+
+        }
+
+        public async void ElectronBootstrap()
+        {
+            var browserWindow = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
+            {
+                Width = 1152,
+                Height = 940,
+                Show = false
+            });
+
+            await browserWindow.WebContents.Session.ClearCacheAsync();
+
+            // For the gracefull showing of the Electron Window when ready
+            browserWindow.OnReadyToShow += () =>
+            {
+                browserWindow.Show();
+                browserWindow.Maximize();
+            };
+            Electron.Menu.SetApplicationMenu(new MenuItem[] { });
         }
     }
 }

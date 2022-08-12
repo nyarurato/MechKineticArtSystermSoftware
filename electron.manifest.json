@@ -10,7 +10,7 @@
   "build": {
     "appId": "com.MechKineticsArtSoftware.app",
     "productName": "MechKineticsArtSoftware",
-    "copyright": "Copyright © 2020",
+    "copyright": "Copyright © 2020 Nyaru",
     "buildVersion": "1.0.0",
     "compression": "maximum",
     "directories": {
@@ -30,6 +30,16 @@
         "filter": [ "**/*" ]
       },
       "**/*"
-    ]
+    ],
+    
+    "win": {
+      "target": "dir"
+    },
+    "linux": {
+      "target": "dir"
+    },
+    "mac": {
+      "target": "dir"
+    }
   }
 }

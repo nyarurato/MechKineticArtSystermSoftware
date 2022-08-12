@@ -1,0 +1,44 @@
+﻿@page "/controller"
+@using MechKineticsArtSoftware
+@inject LogWriter logger
+@inject ConfigManager configmgr
+@implements IDisposable
+
+
+<h1>Controller</h1>
+
+<div>
+    <h4>Control</h4>
+    <div class="card-columns">
+        @for (int i = 0; i < configmgr.configData.num_motor; i++)
+        {
+        <JogWidget motor_index="@i"></JogWidget>
+        }
+    </div>
+
+    <div>
+        <h4>Logs</h4>
+        <textarea class="form-control" @bind="@logtext" readonly>Log Text</textarea>
+    </div>
+</div>
+
+@code {
+    string logtext { get; set; }
+    private System.Threading.Timer? timer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Refresh log text
+        timer = new System.Threading.Timer(async (object? stateInfo) =>
+        {
+            logtext = logger.text;
+            await InvokeAsync(StateHasChanged);
+
+        }, new System.Threading.AutoResetEvent(false), 0, 1000); // fire every 1000 milliseconds
+    }
+
+    public void Dispose()
+    {
+        timer.Dispose();
+    }
+}

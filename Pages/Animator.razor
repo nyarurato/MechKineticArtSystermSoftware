@@ -1,0 +1,27 @@
+﻿@page "/animator"
+
+@using MechKineticsArtSoftware.Data
+@inject LogWriter logger
+@inject ConfigManager configmgr
+
+<h1>Motion Creator</h1>
+
+<div class="form-group">
+    <h3>KeyFrame</h3>
+    <input type="range" class="form-control-range">
+    <input type="number"/>
+</div>
+
+<div class="card-columns">
+
+    @for (int i = 0; i < configmgr.configData.num_motor; i++)
+    {
+        <MoveToWidget motor_index="@i"></MoveToWidget>
+    }
+
+</div>
+
+@code {
+
+}
+

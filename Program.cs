@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ElectronNET.API;
 
 namespace MechKineticsArtSoftware
 {
@@ -22,6 +23,7 @@ namespace MechKineticsArtSoftware
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseElectron(args);
                     webBuilder.UseStartup<Startup>();
                 });
     }

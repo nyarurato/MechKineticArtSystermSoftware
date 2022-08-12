@@ -1,0 +1,107 @@
+﻿@page "/settings"
+@using MechKineticsArtSoftware.Data
+@inject ConfigManager configmgr
+
+<h1>Settings</h1>
+
+<div>
+    <div class="input-group-prepend">
+        <span class="input-group-text">Number of Control Board Group</span>
+        <input type="text" value="@configmgr.configData.num_board" @onchange="OnChangeBoardNum" class="form-control" />
+    </div>
+
+    @for (int i = 0; i < configmgr.configData.ip_address.Count; i++)
+    {
+        <div class="input-group-prepend">
+            <span class="input-group-text">IP Address of Control Board Group @i</span>
+            <input type="text" @bind="@configmgr.configData.ip_address[i]" class="form-control" />
+        </div>
+    }
+
+    <div class="input-group-prepend">
+        <span class="input-group-text">Number of Motor</span>
+        <input type="text" value="@configmgr.configData.num_motor" @onchange="OnChangeMotorNum" class="form-control" />
+    </div>
+
+    <h4> motor assign</h4>
+    @for (int i = 0; i < configmgr.configData.num_motor; i++)
+    {
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Motor @i</span>
+            </div>
+            <div class="input-group-prepend">
+                <span class="input-group-text">Board Group</span>
+            </div>
+            <select name="Board Group Index" class="form-control">
+                @for (int j = 0; j < configmgr.configData.num_board; j++)
+                {
+                    <option value="@j">MainBoard @j</option>
+                }
+            </select>
+            <div class="input-group-prepend">
+                <span class="input-group-text">Board Index</span>
+            </div>
+            <select name="Board Index" class="form-control">
+                <option value="0">MainBoard</option>
+                <option value="1">ExtendBoard 1</option>
+                <option value="2">ExtendBoard 2</option>
+                <option value="3">ExtendBoard 3</option>
+                <option value="4">ExtendBoard 4</option>
+                <option value="5">ExtendBoard 5</option>
+            </select>
+            <div class="input-group-prepend">
+                <span class="input-group-text">Driver Index</span>
+            </div>
+            <select name="Driver Index" class="form-control">
+                <option value="0">Driver0</option>
+                <option value="1">Driver1</option>
+                <option value="2">Driver2</option>
+                <option value="3">Driver3</option>
+                <option value="4">Driver4</option>
+                <option value="5">Driver5</option>
+            </select>
+        </div>
+        }
+
+        <button @onclick="SaveConf" class="form-control">Save Config</button>
+
+    </div>
+
+@code {
+
+    void SaveConf()
+    {
+        configmgr.SaveSetting();
+    }
+
+    void OnChangeBoardNum(ChangeEventArgs e)
+    {
+        configmgr.configData.num_board = int.Parse(e.Value.ToString());
+
+        if (configmgr.configData.num_board < configmgr.configData.ip_address.Count)
+        {
+            configmgr.configData.ip_address.RemoveRange(configmgr.configData.num_board - 1, configmgr.configData.ip_address.Count - configmgr.configData.num_board );
+        }
+
+        if (configmgr.configData.num_board > configmgr.configData.ip_address.Count)
+        {
+            int n = configmgr.configData.num_board - configmgr.configData.ip_address.Count;
+            for (int i = 0; i < n; i++) {
+                configmgr.configData.ip_address.Add(string.Empty);
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    void OnChangeMotorNum(ChangeEventArgs e)
+    {
+        configmgr.configData.num_motor = int.Parse(e.Value.ToString());
+
+        
+
+        StateHasChanged();
+    }
+
+}

@@ -1,0 +1,53 @@
+@using MechKineticsArtSoftware
+@inject LogWriter logger
+
+<div class="card">
+    <h5 class="card-header">Motor @motor_index</h5>
+    <div class="card-body">
+        <div class="row">
+            <h6 class="card-subtitle m-1">Jog</h6>
+        </div>
+        <div class="row">
+            <div class="input-group m-1">
+                <div class="col">
+                    <button class="btn btn-primary" type="button">+Move</button>
+                </div>
+                <div class="col">
+                    <input type="number" name="jog_move_unit_@motor_index" class="form-control" placeholder="move unit" value="1" />
+                </div>
+                <div class="col">
+                    <button class="btn btn-primary" type="button">-Move</button>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <h6 class="card-subtitle m-1">MoveTo</h6>
+        </div>
+        <div class="row">
+            <div class="input-group m-1">
+                <div class="col">
+                    <input type="number" class="form-control" placeholder="MoveToPosition" value="0">
+                </div>
+                <div class="col">
+                    <button class="btn btn-success" type="button" @onclick="@ClickMoveTo">MoveTo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        Current Pos: @current_pos
+    </div>
+</div>
+
+@code {
+    public string current_pos { get; set; } = "No Data";
+
+    [Parameter]
+    public int motor_index { get; set; }
+
+    async Task ClickMoveTo()
+    {
+        logger.writeLogln($"Hello motor {motor_index}");
+    }
+}
