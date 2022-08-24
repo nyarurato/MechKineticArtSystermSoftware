@@ -25,25 +25,25 @@ namespace MechKineticsArtSoftware
 
         public bool Save(string file_name)
         {
-            logwriter.writeLog($"Save keyframe file... path: {file_name}");
+            logwriter.WriteLog($"Save keyframe file... path: {file_name}");
             try { 
                 using(var streamWriter = new StreamWriter(file_name, false, Encoding.UTF8))
                 {
                     xmlSerializer.Serialize(streamWriter, keyframes);
                     streamWriter.Flush();
                 }
-                logwriter.writeLogln($"Success Saved!");
+                logwriter.WriteLogln($"Success Saved!");
                 return true;
             }catch(Exception e)
             {
-                logwriter.writeLogln($"Failed Save: {e.Message}");
+                logwriter.WriteLogln($"Failed Save: {e.Message}");
                 return false;
             }
         }
 
         public List<Keyframe> Load(string file_name)
         {
-            logwriter.writeLogln($"Load keyframe file... path: {file_name}");
+            logwriter.WriteLogln($"Load keyframe file... path: {file_name}");
 
             var xmlSettings = new System.Xml.XmlReaderSettings
             {
@@ -57,11 +57,11 @@ namespace MechKineticsArtSoftware
                 {
                     keyframes = (List<Keyframe>)xmlSerializer.Deserialize(xmlReader);
                 }
-                logwriter.writeLogln($"Loaded keyframe file");
+                logwriter.WriteLogln($"Loaded keyframe file");
 
             }catch(Exception e)
             {
-                logwriter.writeLogln($"Failed Load: {e.Message}");
+                logwriter.WriteLogln($"Failed Load: {e.Message}");
 
             }
             return keyframes;

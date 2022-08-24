@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ElectronNET.API;
+using Microsoft.Extensions.Localization;
 
 namespace MechKineticsArtSoftware
 {
@@ -16,6 +17,7 @@ namespace MechKineticsArtSoftware
     {
         public static void Main(string[] args)
         {
+
             CreateHostBuilder(args).Build().Run();
         }
 

@@ -7,14 +7,14 @@
 <div>
     <div class="input-group-prepend">
         <span class="input-group-text">Number of Control Board Group</span>
-        <input type="text" value="@configmgr.configData.num_board" @onchange="OnChangeBoardNum" class="form-control" />
+        <input type="text" value="@configmgr.configData.num_board_group" @onchange="OnChangeBoardNum" class="form-control" />
     </div>
 
-    @for (int i = 0; i < configmgr.configData.ip_address.Count; i++)
+    @for (int i = 0; i < configmgr.configData.boards_info.Count; i++)
     {
         <div class="input-group-prepend">
             <span class="input-group-text">IP Address of Control Board Group @i</span>
-            <input type="text" @bind="@configmgr.configData.ip_address[i]" class="form-control" />
+            <input type="text" @bind="@configmgr.configData.boards_info[i].ip_address" class="form-control" />
         </div>
     }
 
@@ -34,7 +34,7 @@
                 <span class="input-group-text">Board Group</span>
             </div>
             <select name="Board Group Index" class="form-control">
-                @for (int j = 0; j < configmgr.configData.num_board; j++)
+                @for (int j = 0; j < configmgr.configData.num_board_group; j++)
                 {
                     <option value="@j">MainBoard @j</option>
                 }
@@ -77,18 +77,21 @@
 
     void OnChangeBoardNum(ChangeEventArgs e)
     {
-        configmgr.configData.num_board = int.Parse(e.Value.ToString());
+        configmgr.configData.num_board_group = int.Parse(e.Value.ToString());
 
-        if (configmgr.configData.num_board < configmgr.configData.ip_address.Count)
+        if (configmgr.configData.num_board_group < configmgr.configData.boards_info.Count)
         {
-            configmgr.configData.ip_address.RemoveRange(configmgr.configData.num_board - 1, configmgr.configData.ip_address.Count - configmgr.configData.num_board );
+            configmgr.configData.boards_info.RemoveRange(configmgr.configData.num_board_group - 1, configmgr.configData.boards_info.Count - configmgr.configData.num_board_group );
         }
 
-        if (configmgr.configData.num_board > configmgr.configData.ip_address.Count)
+        if (configmgr.configData.num_board_group > configmgr.configData.boards_info.Count)
         {
-            int n = configmgr.configData.num_board - configmgr.configData.ip_address.Count;
+            int n = configmgr.configData.num_board_group - configmgr.configData.boards_info.Count;
             for (int i = 0; i < n; i++) {
-                configmgr.configData.ip_address.Add(string.Empty);
+                BoardInfo boardinfo = new BoardInfo();
+                boardinfo.ip_address = string.Empty;
+                boardinfo.board_group_index = i;
+                configmgr.configData.boards_info.Add(boardinfo);
             }
         }
 

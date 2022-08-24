@@ -1,0 +1,89 @@
+@using MechKineticsArtSoftware
+@inject LogWriter logger
+@inject WebAPIManage apidatas
+@inject ConfigManager configmgr
+@implements IDisposable
+
+<div class="card mb-4">
+    <h6 class="card-header">Motor @motor_index</h6>
+    <div class="card-body">
+        <div class="row">
+            <div class="input-group m-1">
+                <div class="col">
+                    <p>Position</p>
+                </div>
+                <div class="col"> 
+                    <input type="number" class="form-control" placeholder="MoveToPosition" @bind="movetopos">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <p class="card-text">Current Pos: @currentpos</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<float> movetoposChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<float> currentposChanged { get; set; }
+
+    private System.Threading.Timer timer;
+
+
+    float _currentpos = 0;
+
+    [Parameter]
+    public float currentpos
+    {
+        get { return _currentpos; }
+        set
+        {
+            if (_currentpos != value)
+            {
+
+                _currentpos = value;
+                currentposChanged.InvokeAsync(_currentpos);
+            }
+        }
+    }
+
+
+    [Parameter]
+    public int motor_index { get; set; }
+
+
+    float _moveto_pos = 0;
+
+    [Parameter]
+    public float movetopos {
+        get{ return _moveto_pos; }
+        set{ if (_moveto_pos != value) {
+                _moveto_pos = value;
+                movetoposChanged.InvokeAsync(_moveto_pos);
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        timer = new System.Threading.Timer(async (object? stateInfo) =>
+        {
+
+            _currentpos = apidatas.motor_list[motor_index].position;
+            await InvokeAsync(StateHasChanged);
+
+        }, new System.Threading.AutoResetEvent(false), 0, configmgr.configData.position_update_interval/2);// fire half of update time
+
+
+    }
+
+    public void Dispose()
+    {
+        timer.Dispose();
+    }
+
+}

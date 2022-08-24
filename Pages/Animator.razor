@@ -1,27 +1,318 @@
 ﻿@page "/animator"
 
 @using MechKineticsArtSoftware.Data
+@using System.IO;
 @inject LogWriter logger
 @inject ConfigManager configmgr
+@inject WebAPIManage apidata
+@inject KeyFrameManager kfmgr
 
 <h1>Motion Creator</h1>
 
 <div class="form-group">
     <h3>KeyFrame</h3>
-    <input type="range" class="form-control-range">
-    <input type="number"/>
+    <div class="row">
+        <div class="col-9">
+            <input type="range" class="form-control-range" @onchange="OnKeyFrameChange" max="@configmgr.configData.max_keyframe" value="@current_keyframe">
+            <div class="row">
+                @for (int i = 0; i < configmgr.configData.max_keyframe; i++)
+                {
+                    int local = i;
+                <span class="col">
+
+                    @if (kfmgr.keyframes.Count > local)
+                    {
+                        if (kfmgr.keyframes[local].action == Keyframe.Action.MOVETO)
+                        {
+                            <span class="badge badge-success">Move</span>
+                        }
+                        else if (kfmgr.keyframes[local].action == Keyframe.Action.RAPIDMOVE)
+                        {
+                            <span class="badge badge-warning">Rapid</span>
+                        }
+                        else if (kfmgr.keyframes[local].action == Keyframe.Action.WAITTIME)
+                        {
+                            <span class="badge badge-primary">Wait</span>
+
+                        }
+                        else if (kfmgr.keyframes[local].action == Keyframe.Action.ENDOFPROGRAM)
+                        {
+                            <span class="badge badge-danger">END</span>
+
+                        }
+                        else
+                        {
+                            <span class="badge badge-secondary">None</span>
+
+                        }
+                    }
+
+                </span>
+                }
+            </div>
+
+        </div>
+        <div class="col-3">
+            <input type="number" @onchange="OnKeyFrameChange" step="1" value="@current_keyframe" />
+        </div>
+    </div>
 </div>
 
-<div class="card-columns">
+
+<div class="form-group">
+    <h4>KeyFrameAction</h4>
+    <div class="row">
+        <div class="col-5">
+            <div>
+                <select @bind="current_action" class="form-control">
+                    <option value="1">MoveTo</option>
+                    <option value="2">RapidMove</option>
+                    <option value="3">WaitTime</option>
+                    <option value="4" disabled>WaitOtherBoard</option>
+                    <option value="255">EndProgram</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-5">
+
+            @if (feedrate_inputbox_show_flag)
+            {
+                <div>
+                    Feedrate
+                    <input type="number" @bind="feedrate" step="100" />
+                </div>
+            }
+
+            @if (waittime_inputbox_show_flag)
+            {
+                <div>
+                    WaitTime
+                    <input type="number" @bind="wait_time" step="0.5" />
+                </div>
+            }
+        </div>
+    </div>
+    <h4>KeyFrame Utility</h4>
+    <div class="row">
+        <div class="col-2">
+            <button class="btn btn-primary" @onclick="OnClickSetKeyFrame">SetKeyFrame</button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-primary" @onclick="OnClickMove">TestMove</button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-secondary" @onclick="OnClickMakeNC">MakeNCFile</button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-secondary" @onclick="OnClickSendNC">SendNCFile</button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-success" @onclick=@(() => kfmgr.Save("./keyframes.xml") )>SaveKeyFrameData</button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-light" @onclick=@(() => { kfmgr.Load("./keyframes.xml"); SyncDatasFromKeyFrame();} )>LoadKeyFrameData</button>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="card-deck">
 
     @for (int i = 0; i < configmgr.configData.num_motor; i++)
     {
-        <MoveToWidget motor_index="@i"></MoveToWidget>
+        int local = i;
+        <AnimatorMoveToWidget motor_index=local @bind-movetopos=unit_positions[local] currentpos=@apidata.motor_list[local].position></AnimatorMoveToWidget>
     }
 
 </div>
 
+
 @code {
+    bool feedrate_inputbox_show_flag = true;
+    bool waittime_inputbox_show_flag = false;
+
+
+    int current_keyframe { get; set; } = 0;
+
+    float[] unit_positions;
+
+    int _current_action = 1;
+    int current_action
+    {
+        get { return _current_action; }
+        set
+        {
+            _current_action = value;
+            OnKeyFrameActionChange(value);
+        }
+    }
+
+    int feedrate = 500;
+
+    float wait_time = 4.5f;
+
+
+    void OnKeyFrameChange(ChangeEventArgs e)
+    {
+        current_keyframe = int.Parse(e.Value.ToString());
+        SyncDatasFromKeyFrame();
+    }
+
+    void SyncDatasFromKeyFrame()
+    {
+        if (kfmgr.keyframes.Count > current_keyframe)
+        {
+            kfmgr.keyframes[current_keyframe].unit_motion.CopyTo(unit_positions, 0);
+            feedrate = kfmgr.keyframes[current_keyframe].move_speed;
+            wait_time = kfmgr.keyframes[current_keyframe].wait_time;
+            current_action = ((int)kfmgr.keyframes[current_keyframe].action);
+        }
+    }
+
+    void OnKeyFrameActionChange(int val)
+    {
+        switch (val)
+        {
+            case 0:
+                break;
+            case 1:
+                feedrate_inputbox_show_flag = true;
+                waittime_inputbox_show_flag = false;
+                break;
+            case 2:
+                feedrate_inputbox_show_flag = false;
+                waittime_inputbox_show_flag = false;
+                break;
+            case 3:
+                feedrate_inputbox_show_flag = false;
+                waittime_inputbox_show_flag = true;
+                break;
+            case 4:
+                feedrate_inputbox_show_flag = false;
+                waittime_inputbox_show_flag = false;
+                break;
+            case 255:
+                feedrate_inputbox_show_flag = false;
+                waittime_inputbox_show_flag = false;
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    void OnClickSetKeyFrame()
+    {
+        if (kfmgr.keyframes.Count <= current_keyframe)
+        {
+            kfmgr.keyframes.Add(new Keyframe());
+        }
+        kfmgr.keyframes[current_keyframe].action = (Keyframe.Action)current_action;
+
+        kfmgr.keyframes[current_keyframe].index = current_keyframe;
+        kfmgr.keyframes[current_keyframe].move_speed = feedrate;
+
+        kfmgr.keyframes[current_keyframe].wait_time = wait_time;
+        kfmgr.keyframes[current_keyframe].ArrayCopy(unit_positions);
+
+        current_keyframe++;
+    }
+
+    void OnClickMakeNC()
+    {
+        for (int i = 0; i < configmgr.configData.num_board_group; i++)
+        {
+            ParentBoard parentBoard = apidata.GetBoardFromIndex(i);
+            KeyFrameCAM keyFrameCAM = new KeyFrameCAM(i, apidata, logger);
+
+            keyFrameCAM.MakeNCFile(configmgr.configData.save_nc_path_on_pc_directory
+                + configmgr.configData.nc_file_name
+                + i.ToString()
+                + configmgr.configData.nc_file_name_ext
+                , kfmgr.keyframes, configmgr.configData.is_enable_ncfile_loop);
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        unit_positions = new float[configmgr.configData.num_motor];
+    }
+
+    async void OnClickSendNC()
+    {
+        for (int i = 0; i < configmgr.configData.num_board_group; i++)
+        {
+            try
+            {
+                using (StreamReader sr = new StreamReader(configmgr.configData.save_nc_path_on_pc_directory
+                                                        + configmgr.configData.nc_file_name
+                                                        + i.ToString()
+                                                        + configmgr.configData.nc_file_name_ext))
+                {
+                    ParentBoard parentBoard = apidata.GetBoardFromIndex(i);
+
+
+                    bool result = await parentBoard.webAPI.SendFile(sr, configmgr.configData.save_path_on_board);
+                }
+
+            }
+            catch (Exception e)
+            {
+                logger.WriteLogln($"Can NOT Send NC File\n{e.Message}");
+            }
+        }
+    }
+
+    async void OnClickMove()
+    {
+        string order = "G0";
+
+        await apidata.GetPositions();
+
+        for (int i = 0; i < configmgr.configData.num_board_group; i++)
+        {
+            var mlist = apidata.GetMotorListOnSameBoardGroup(i);
+            bool is_exist_e_axis = false;
+            foreach(Motor motor in mlist)
+            {
+
+                if (motor.is_e_axis_motor)
+                {
+                    is_exist_e_axis = true;
+                }
+                else
+                {
+                    order += $" {motor.axis_name}{unit_positions[motor.unit_index]}";
+                }
+
+            }
+
+            // E1 E2 E3.... -> Exx:xx:xx:xx
+            if (is_exist_e_axis)
+            {
+                string eorder = " E";
+                var e_axis = mlist.FindAll(x => (x.is_e_axis_motor));
+                e_axis.OrderBy(x => (x.axis_name));//E0,E1...E4,E5...
+                bool is_first_flag = true;
+
+                foreach (Motor emotor in e_axis)
+                {
+                    // Convert Abs coord to Rel coord for E-axis
+                    eorder += $"{(is_first_flag ? string.Empty : ':')}" + $"{emotor.CalcRelativePosFromCurrentPos(unit_positions[emotor.unit_index])}";
+                    is_first_flag = false;
+                }
+
+                order += eorder;
+            }
+            await apidata.GetBoardFromIndex(i).webAPI.SendGcode(order);
+        }
+
+
+    }
+
+    
 
 }
 

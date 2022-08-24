@@ -11,43 +11,32 @@ namespace MechKineticsArtSoftware
     {
         public enum Action
         {
-            NONE,
-            MOVETO,
-            RAPIDMOVE,
-            WAITTIME,
-            ENDOFPROGRAM
+            NONE = 0,
+            MOVETO = 1,
+            RAPIDMOVE = 2,
+            WAITTIME = 3,
+            ENDOFPROGRAM = 255
         };
 
         public int index { get; set; }
         public Action action { get; set; }
         public float wait_time { get; set; }
 
-        public int move_time { get; set; }
-        public float[][] unit_motion { get; set; }
+        public int move_speed { get; set; }
+        public float[] unit_motion { get; set; }
 
         public Keyframe()
         {
-            unit_motion = new float[][]
-            {
-                /*
-                new float[Form1.motor_num_each_unit],
-                new float[Form1.motor_num_each_unit],
-                new float[Form1.motor_num_each_unit],
-                new float[Form1.motor_num_each_unit],
-                new float[Form1.motor_num_each_unit],
-                new float[Form1.motor_num_each_unit],
-                new float[Form1.motor_num_each_unit],
-                new float[Form1.motor_num_each_unit]
-                */
-            };
         }
 
-        public void ArrayCopy(float[][] data)
+        public void ArrayCopy(float[] data)
         {
-            for (int i = 0; i < unit_motion.Length; i++)
+            if(unit_motion == null)
             {
-                Array.Copy(data[i], unit_motion[i], data[i].Length);
+                unit_motion = new float[data.Length];
             }
+            Array.Copy(data, unit_motion, data.Length);
+            
         }
     }
 

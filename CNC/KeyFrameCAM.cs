@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define USE_FEEDRATE
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,10 +9,11 @@ using System.IO;
 
 namespace MechKineticsArtSoftware
 {
+    //Make this object by each Board
     class KeyFrameCAM
     {
         int board_index;
-        WebAPIDatas apidatas;
+        WebAPIManage apidatas;
         LogWriter logger;
 
         const string setup_commands = "";
@@ -19,19 +22,17 @@ namespace MechKineticsArtSoftware
         const string loop_commands = "while true\n";
         const string loop_indent = "  ";
 
-        const int motor_num_each_unit = 3;
-
-        public KeyFrameCAM(int board_i, WebAPIDatas webAPIDatas, LogWriter logwriter)
+        public KeyFrameCAM(int board_i, WebAPIManage webAPIDatas, LogWriter logwriter)
         {
             board_index = board_i;
             apidatas = webAPIDatas;
             logger = logwriter;
 
-
         }
 
         public bool MakeNCFile(string save_path, List<Keyframe> keyframes, bool is_active_loop = false)
         {
+            
             string nc_program = "";
 
             nc_program += setup_commands;
@@ -41,10 +42,16 @@ namespace MechKineticsArtSoftware
                 nc_program += loop_commands;
             }
 
-            var same_board_unit_list = apidatas.relation_list.Where(x => x.unit_board == apidatas.api_list[board_index]);
+            ParentBoard pboard = apidatas.GetBoardFromIndex(board_index);
 
-            float[] pre_vector = new float[same_board_unit_list.Count() * motor_num_each_unit];
-            float[] vec = new float[same_board_unit_list.Count() * motor_num_each_unit];
+            List<Motor> motor_list_on_same_board = apidatas.motor_list.Where(x => (x.unit_board.parent == pboard)).ToList();
+
+            int motor_num_on_board = motor_list_on_same_board.Count;
+
+            float[] pre_vector = new float[motor_num_on_board];
+            float[] vec = new float[motor_num_on_board];
+
+            Keyframe previous = null;
 
             foreach (Keyframe kf in keyframes)
             {
@@ -64,18 +71,14 @@ namespace MechKineticsArtSoftware
 
                     block_word += $"G1";
 
-                    int index = 0;
-                    foreach (var unit_motor in same_board_unit_list)
-                    {
-                        block_word += $" {unit_motor.axis_each_name[0]}{kf.unit_motion[unit_motor.unit_index][0]} {unit_motor.axis_each_name[1]}{kf.unit_motion[unit_motor.unit_index][1]} {unit_motor.axis_each_name[2]}{kf.unit_motion[unit_motor.unit_index][2]}";
+                    
 
-                        vec[index] = kf.unit_motion[unit_motor.unit_index][0];
-                        vec[index + 1] = kf.unit_motion[unit_motor.unit_index][1];
-                        vec[index + 2] = kf.unit_motion[unit_motor.unit_index][2];
+                    block_word += MakeAxisPostionOrder(previous,kf,motor_list_on_same_board);
 
-                        index += motor_num_each_unit;
+                    //calc late similar move time feedrate between other board group
 
-                    }
+#if USE_MOVETIME
+                    //It will support inverse feedrate moving in RRF3.5
 
                     double length = 0;
                     for (int j = 0; j < vec.Length; j++)
@@ -83,17 +86,25 @@ namespace MechKineticsArtSoftware
                         length += Math.Pow((vec[j] - pre_vector[j]), 2);
                     }
                     length = Math.Sqrt(length);
+                    
 
                     int feed_rate = (int)Math.Abs(Math.Round(length / kf.move_time * 60));
+#else
+
+                    int feed_rate = kf.move_speed;
+#endif
                     block_word += $" F{feed_rate}\n";
 
                     vec.CopyTo(pre_vector, 0);
 
+#if USE_MOVETIME
+                    //It will support inverse feedrate moving in RRF3.5
                     if (feed_rate == 0)
                     {
                         block_word = $"G4 S{kf.move_time.ToString("0.##")}\n";
                     }
-
+                    */
+#endif
 
                 }
                 else if (kf.action == Keyframe.Action.RAPIDMOVE)
@@ -101,10 +112,9 @@ namespace MechKineticsArtSoftware
                     block_word += $"G0";
 
 
-                    foreach (var unit_motor in same_board_unit_list)
-                    {
-                        block_word += $" {unit_motor.axis_each_name[0]}{kf.unit_motion[unit_motor.unit_index][0]} {unit_motor.axis_each_name[1]}{kf.unit_motion[unit_motor.unit_index][1]} {unit_motor.axis_each_name[2]}{kf.unit_motion[unit_motor.unit_index][2]}";
-                    }
+                    block_word += MakeAxisPostionOrder(previous,kf,motor_list_on_same_board);
+
+
                     block_word += $"\n";
 
                 }
@@ -119,6 +129,7 @@ namespace MechKineticsArtSoftware
                 }
 
                 nc_program += block_word;
+                previous = kf;
             }
 
             nc_program += end_commands;
@@ -126,16 +137,77 @@ namespace MechKineticsArtSoftware
             try
             {
                 File.WriteAllText(save_path, nc_program, Encoding.UTF8);
-                logger.writeLogln($"Board:{board_index} Created & Saved NC File. Path : {save_path}");
+                logger.WriteLogln($"Board:{board_index} Created & Saved NC File. Path : {save_path}");
             }
             catch (Exception e)
             {
-                logger.writeLogln($"Board:{board_index} NC file output error : {e.Message}");
+                logger.WriteLogln($"Board:{board_index} NC file output error : {e.Message}");
                 return false;
             }
-
+            
             return true;
+            
+        }
 
+
+        string MakeAxisPostionOrder(Keyframe previous,Keyframe kf,List<Motor> motor_list_on_same_board)
+        {
+            string position_order = "";
+            List<Motor> e_axis;
+            bool is_exist_e_axis = false;
+
+            foreach (var motor in motor_list_on_same_board)
+            {
+                if (motor.axis_name.Contains("E"))
+                {
+                    is_exist_e_axis = true;   
+                }
+                else
+                {
+                    position_order += $" {motor.axis_name}{kf.unit_motion[motor.unit_index]}";
+                }
+
+            }
+            //ADD E1 E2 E3.... -> Exx:xx:xx:xx
+            if (is_exist_e_axis)
+            {
+                e_axis = motor_list_on_same_board.FindAll(x => (x.is_e_axis_motor));
+                position_order += MakeAxisPositionOrderForEaxis(previous,kf, e_axis);
+            }
+
+
+            return position_order;
+        }
+
+        string MakeAxisPositionOrderForEaxis(Keyframe previous,Keyframe kf,List<Motor> eaxis_motor_list_on_same_board)
+        {
+            string position_order = " E";
+
+            eaxis_motor_list_on_same_board.OrderBy(x => (x.axis_name));//E0,E1...E4,E5...
+            bool is_first_flag = true;
+
+            float[] prev_position;
+
+            if (previous == null)
+            {
+                prev_position = new float[kf.unit_motion.Length];
+                Array.Fill(prev_position, 0);
+            }
+            else
+            {
+                prev_position = previous.unit_motion;
+            }
+
+
+            foreach(Motor emotor in eaxis_motor_list_on_same_board)
+            {
+                
+
+                position_order += $"{(is_first_flag?string.Empty:':')}" + $"{emotor.CalcRelativePos(kf.unit_motion[emotor.unit_index],prev_position[emotor.unit_index])}";
+                is_first_flag = false;
+            }
+
+            return position_order;
         }
     }
 }

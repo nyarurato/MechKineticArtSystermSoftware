@@ -9,32 +9,34 @@
 
 <div>
     <h4>Control</h4>
-    <div class="card-columns">
+    <div class="card-deck">
         @for (int i = 0; i < configmgr.configData.num_motor; i++)
         {
         <JogWidget motor_index="@i"></JogWidget>
         }
     </div>
 
-    <div>
+    <div class="form-group">
         <h4>Logs</h4>
-        <textarea class="form-control" @bind="@logtext" readonly>Log Text</textarea>
+        <textarea class="form-control" @bind="@logtext" rows="5" readonly>Log Text</textarea>
     </div>
 </div>
 
 @code {
-    string logtext { get; set; }
-    private System.Threading.Timer? timer;
+    string logtext = "";
+    private System.Threading.Timer timer;
 
     protected override async Task OnInitializedAsync()
     {
         // Refresh log text
+
         timer = new System.Threading.Timer(async (object? stateInfo) =>
         {
             logtext = logger.text;
             await InvokeAsync(StateHasChanged);
 
-        }, new System.Threading.AutoResetEvent(false), 0, 1000); // fire every 1000 milliseconds
+        }, new System.Threading.AutoResetEvent(false), 0, configmgr.configData.position_update_interval / 2); // fire half of update time
+
     }
 
     public void Dispose()

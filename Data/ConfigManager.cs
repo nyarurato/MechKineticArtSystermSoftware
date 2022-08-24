@@ -12,13 +12,11 @@ namespace MechKineticsArtSoftware
 {
     public class ConfigManager
     {
-        Dictionary<string, string> _appsettings;
-        public Dictionary<string, string> appsettings { get { return _appsettings; } }
+        
         public ConfigData configData { get; set; }
 
         public ConfigManager()
         {
-            _appsettings = new Dictionary<string, string>();
             LoadDefaultSetting();
         }
 

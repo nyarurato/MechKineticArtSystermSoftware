@@ -1,47 +1,33 @@
 {
-  "num_board": 3,
-  "ip_address": [
-    "192.168.0.56",
-    "192.168.0.57",
-    "192.168.0.58"
+  "num_board_group": 1,
+  "boards_info": [
+    {
+      "board_group_index": 0,
+      "ip_address": "192.168.0.56",
+      "structure": "0,0"
+    }
+
   ],
-  "num_motor":24,
-  "nc_file_name": "out.nc",
-  "save_path_on_board": "0://gcodes/beijing/program.nc",
+  
+  "num_motor":12,
+  "nc_file_name": "out",
+  "nc_file_name_ext": ".nc",
+  "save_path_on_board": "0://gcodes/mkas/program.nc",
   "save_nc_path_on_pc_directory": "./nc/",
-  "save_nc_name_on_pc": "program",
-  "unit_assign": [
-    [
-      "0.0",
-      "0.1",
-      "0.2",
-      "0.3",
-      "0.4",
-      "0.5",
-      "1.0",
-      "1.1"
-    ],
-    [
-      "0.0",
-      "0.1",
-      "0.2",
-      "0.3",
-      "0.4",
-      "0.5",
-      "1.0",
-      "1.1"
-    ],
-    [
-      "0.0",
-      "0.1",
-      "0.2",
-      "0.3",
-      "0.4",
-      "0.5",
-      "1.0",
-      "1.1"
-    ]
-  ],
+  "motor_assign": {
+    "0": "0.0.0",
+    "1": "0.0.1",
+    "2": "0.0.2",
+    "3": "0.0.3",
+    "4": "0.0.4",
+    "5": "0.0.5",
+    "6": "0.1.0",
+    "7": "0.1.1",
+    "8": "0.1.2",
+    "9": "0.1.3",
+    "10": "0.1.4",
+    "11": "0.1.5"
+  },
   "dafault_movetime": 10,
   "max_keyframe": 10,
   "position_update_interval": 1000,

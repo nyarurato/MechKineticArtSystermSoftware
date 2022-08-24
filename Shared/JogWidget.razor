@@ -1,5 +1,8 @@
 @using MechKineticsArtSoftware
 @inject LogWriter logger
+@inject WebAPIManage apidata
+@implements IDisposable
+
 
 <div class="card">
     <h5 class="card-header">Motor @motor_index</h5>
@@ -10,13 +13,13 @@
         <div class="row">
             <div class="input-group m-1">
                 <div class="col">
-                    <button class="btn btn-primary" type="button">+Move</button>
+                    <button class="btn btn-primary" type="button" @onclick="JogPlus">+Move</button>
                 </div>
                 <div class="col">
-                    <input type="number" name="jog_move_unit_@motor_index" class="form-control" placeholder="move unit" value="1" />
+                    <input type="number" name="jog_move_unit_@motor_index" class="form-control" placeholder="move unit" @bind="jog_unit" />
                 </div>
                 <div class="col">
-                    <button class="btn btn-primary" type="button">-Move</button>
+                    <button class="btn btn-primary" type="button" @onclick="JogMinus">-Move</button>
 
                 </div>
             </div>
@@ -27,10 +30,10 @@
         <div class="row">
             <div class="input-group m-1">
                 <div class="col">
-                    <input type="number" class="form-control" placeholder="MoveToPosition" value="0">
+                    <input type="number" class="form-control" placeholder="MoveToPosition" @bind="moveto">
                 </div>
                 <div class="col">
-                    <button class="btn btn-success" type="button" @onclick="@ClickMoveTo">MoveTo</button>
+                    <button class="btn btn-success" type="button" @onclick="ClickMoveTo">MoveTo</button>
                 </div>
             </div>
         </div>
@@ -41,13 +44,49 @@
 </div>
 
 @code {
-    public string current_pos { get; set; } = "No Data";
+    public float current_pos { get; set; }
+    float jog_unit = 10;
+    float moveto = 0;
 
     [Parameter]
     public int motor_index { get; set; }
 
-    async Task ClickMoveTo()
+    private System.Threading.Timer timer;
+
+
+    async void ClickMoveTo()
     {
-        logger.writeLogln($"Hello motor {motor_index}");
+        await apidata.GetMotorFromMotorIndex(motor_index).MoveTo(moveto);
     }
+
+    async void JogPlus()
+    {
+        await apidata.GetMotorFromMotorIndex(motor_index).JogMove(Math.Abs(jog_unit));
+    }
+
+    async void JogMinus()
+    {
+        await apidata.GetMotorFromMotorIndex(motor_index).JogMove(-1 * Math.Abs(jog_unit));
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        timer = new System.Threading.Timer(async (object? stateInfo) =>
+        {
+
+            current_pos = apidata.motor_list[motor_index].position;
+            await InvokeAsync(StateHasChanged);
+
+        }, new System.Threading.AutoResetEvent(false), 0, 500); // fire every 500 milliseconds
+
+
+    }
+
+    public void Dispose()
+    {
+        timer.Dispose();
+    }
+
 }

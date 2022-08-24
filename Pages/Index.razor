@@ -1,4 +1,8 @@
 ﻿@page "/"
+@inject LogWriter logger
+@inject ConfigManager configmgr
+@inject WebAPIManage apidata
+@inject KeyFrameManager kfmgr
 
 <h1>Mech Kinetic Art System Software</h1>
 
@@ -6,9 +10,9 @@
 
     <h2>Connect</h2>
     <div class="btn-group-vertical" role="group">
-        <button type="button" class="btn btn-primary">Load Config</button>
+        <button type="button" class="btn btn-primary" disabled>Load Config</button>
 
-        <button type="button" class="btn btn-success">Connect</button>
+        <button type="button" class="btn btn-success" disabled>Connect</button>
     </div>
 </div>
 
@@ -16,19 +20,24 @@
 <div>
     <h2>Status</h2>
     <div>
-        Test
-        <div>
-            <span class="badge badge-success">OK</span> Board0
-        </div>
-        <div>
+        @for (int i = 0; i < configmgr.configData.num_board_group; i++)
+        {
+            int local = i;
+            if (apidata.api_list[local].is_connected)
+            {
 
-            <span class="badge badge-warning">Error</span> Board1
-        </div>
-        <div>
+                <div>
+                    <span class="badge badge-success">Connected</span> Board @local
+                </div>
 
-            <span class="badge badge-warning">Error</span> Board1
-
-        </div>
+            }
+            else
+            {
+                <div>
+                    <span class="badge badge-danger">Disconnected</span> Board @local
+                </div>
+            }
+        }
     </div>
 </div>
 
@@ -37,9 +46,58 @@
 
     <h2>Control</h2>
     <div class="btn-group-vertical" role="group">
-
-        <button type="button" class="btn btn-primary">Go To Origin</button>
-        <button type="button" class="btn btn-primary">Run File</button>
-        <button type="button" class="btn btn-danger">Emergency Stop</button>
+        <button type="button" class="btn btn-primary" @onclick="OnClickedHoming">Homing</button>
+        <button type="button" class="btn btn-primary" @onclick="OnClickedGotoOrigin">Go To Origin</button>
+        <button type="button" class="btn btn-secondary" @onclick="OnClickedRunFile">Run File</button>
+        <button type="button" class="btn btn-warning" @onclick="OnClickedStopJob">StopJob</button>
+        <button type="button" class="btn btn-danger" @onclick="OnClickedEmegencyStop">Emergency Stop</button>
     </div>
 </div>
+
+@code{
+    async void OnClickedHoming()
+    {
+        foreach (var api in apidata.api_list)
+        {
+            await api.SendGcode("G28");
+            logger.WriteLogln($"Homing: {api.url}");
+        }
+    }
+
+    async void OnClickedEmegencyStop()
+    {
+        foreach (var api in apidata.api_list)
+        {
+            await api.SendGcode("M112\nM999;");
+            logger.WriteLogln($"Send Emergency Stop: {api.url}");
+        }
+    }
+
+    async void OnClickedRunFile()
+    {
+        foreach (var api in apidata.api_list)
+        {
+            await api.RunFile(configmgr.configData.save_path_on_board);
+            logger.WriteLogln($"Run File: {api.url}");
+        }
+    }
+
+    async void OnClickedGotoOrigin()
+    {
+        foreach (var api in apidata.api_list)
+        {
+            await api.SendGcode("G0 X0 Y0 Z0 A0 B0 C0 U0 V0 W0 E0:0:0");//TODO : fix
+            logger.WriteLogln($"Goto Origin: {api.url}");
+
+        }
+    }
+
+    async void OnClickedStopJob()
+    {
+        foreach(var api in apidata.api_list)
+        {
+            await api.SendGcode("M25\nM0;");
+            logger.WriteLogln($"Stop Job: {api.url}");
+        }
+    }
+}

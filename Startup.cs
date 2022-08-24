@@ -34,7 +34,7 @@ namespace MechKineticsArtSoftware
             services.AddSingleton<LogWriter>();
             services.AddSingleton<ConfigManager>();
             services.AddSingleton<KeyFrameManager>();
-            services.AddSingleton<WebAPIDatas>();
+            services.AddSingleton<WebAPIManage>();
 
         }
 
