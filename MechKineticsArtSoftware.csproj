@@ -14,8 +14,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="nc\" />
-    <Folder Include="Resources\Pages\" />
-    <Folder Include="Resources\Shared\" />
     <Folder Include="Assets\" />
   </ItemGroup>
 </Project>

@@ -3,22 +3,23 @@
 @inject ConfigManager configmgr
 @inject WebAPIManage apidata
 @inject KeyFrameManager kfmgr
+@inject IStringLocalizer<Index> localizer
 
-<h1>Mech Kinetic Art System Software</h1>
+<h1>@localizer["appname"] </h1>
 
 <div>
 
-    <h2>Connect</h2>
+    <h2>@localizer["initial"]</h2>
     <div class="btn-group-vertical" role="group">
-        <button type="button" class="btn btn-primary" disabled>Load Config</button>
+        <button type="button" class="btn btn-primary" disabled>@localizer["loadconfig"]</button>
 
-        <button type="button" class="btn btn-success" disabled>Connect</button>
+        <button type="button" class="btn btn-success" disabled>@localizer["connect"]</button>
     </div>
 </div>
 
 
 <div>
-    <h2>Status</h2>
+    <h2>@localizer["status"]</h2>
     <div>
         @for (int i = 0; i < configmgr.configData.num_board_group; i++)
         {
@@ -27,14 +28,14 @@
             {
 
                 <div>
-                    <span class="badge badge-success">Connected</span> Board @local
+                    <span class="badge badge-success">@localizer["connected"]</span> Board @local
                 </div>
 
             }
             else
             {
                 <div>
-                    <span class="badge badge-danger">Disconnected</span> Board @local
+                    <span class="badge badge-danger">@localizer["disconnected"]</span> Board @local
                 </div>
             }
         }
@@ -44,13 +45,13 @@
 
 <div>
 
-    <h2>Control</h2>
+    <h2>@localizer["control"]</h2>
     <div class="btn-group-vertical" role="group">
-        <button type="button" class="btn btn-primary" @onclick="OnClickedHoming">Homing</button>
-        <button type="button" class="btn btn-primary" @onclick="OnClickedGotoOrigin">Go To Origin</button>
-        <button type="button" class="btn btn-secondary" @onclick="OnClickedRunFile">Run File</button>
-        <button type="button" class="btn btn-warning" @onclick="OnClickedStopJob">StopJob</button>
-        <button type="button" class="btn btn-danger" @onclick="OnClickedEmegencyStop">Emergency Stop</button>
+        <button type="button" class="btn btn-primary" @onclick="OnClickedHoming">@localizer["homing"]</button>
+        <button type="button" class="btn btn-primary" @onclick="OnClickedGotoOrigin">@localizer["gotoorigin"]</button>
+        <button type="button" class="btn btn-secondary" @onclick="OnClickedRunFile">@localizer["runfile"]</button>
+        <button type="button" class="btn btn-warning" @onclick="OnClickedStopJob">@localizer["stopjob"]</button>
+        <button type="button" class="btn btn-danger" @onclick="OnClickedEmegencyStop">@localizer["emergencystop"]</button>
     </div>
 </div>
 

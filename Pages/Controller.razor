@@ -2,22 +2,23 @@
 @using MechKineticsArtSoftware
 @inject LogWriter logger
 @inject ConfigManager configmgr
-@implements IDisposable
+@inject IStringLocalizer<Controller> localizer
+@implements IAsyncDisposable
 
 
-<h1>Controller</h1>
+<h1>@localizer["title"]</h1>
 
 <div>
-    <h4>Control</h4>
+    <h4>@localizer["control"]</h4>
     <div class="card-deck">
         @for (int i = 0; i < configmgr.configData.num_motor; i++)
         {
-        <JogWidget motor_index="@i"></JogWidget>
+            <JogWidget motor_index="@i"></JogWidget>
         }
     </div>
 
     <div class="form-group">
-        <h4>Logs</h4>
+        <h4>@localizer["logs"]</h4>
         <textarea class="form-control" @bind="@logtext" rows="5" readonly>Log Text</textarea>
     </div>
 </div>
@@ -33,14 +34,20 @@
         timer = new System.Threading.Timer(async (object? stateInfo) =>
         {
             logtext = logger.text;
-            await InvokeAsync(StateHasChanged);
-
+            try
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+            catch(Exception e)
+            {
+                logger.WriteLogln($"Update event miss:{e.Message}");
+            }
         }, new System.Threading.AutoResetEvent(false), 0, configmgr.configData.position_update_interval / 2); // fire half of update time
 
     }
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        timer.Dispose();
+        return timer?.DisposeAsync() ?? ValueTask.CompletedTask;
     }
 }

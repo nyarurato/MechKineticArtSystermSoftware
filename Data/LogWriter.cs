@@ -5,41 +5,44 @@ using System.Text;
 using System.IO;
 using System.Text.Encodings;
 
-public class LogWriter
+namespace MechKineticsArtSoftware
 {
-    string _logtext;
-
-    public string text { get { return _logtext; } }
-
-    StreamWriter streamWriter;
-
-    public LogWriter()
+    public class LogWriter
     {
-        _logtext = "";
-        streamWriter = new StreamWriter("./log.txt");
-        streamWriter.AutoFlush = true;
-    }
+        string _logtext;
 
-    ~LogWriter()
-    {
-        streamWriter.Close();
-    }
+        public string text { get { return _logtext; } }
 
-    public void WriteLogln(string s)
-    {
-        WriteLog(s + Environment.NewLine);
-    }
+        StreamWriter streamWriter;
 
-    public void WriteLog(string s)
-    {
-        _logtext += s;
-        Console.Write(s);
-        streamWriter.Write(s);
-    }
+        public LogWriter()
+        {
+            _logtext = "";
+            streamWriter = new StreamWriter("./log.txt");
+            streamWriter.AutoFlush = true;
+        }
 
-    public void ClearLog()
-    {
-        _logtext = string.Empty;
-    }
+        ~LogWriter()
+        {
+            streamWriter.Close();
+        }
 
+        public void WriteLogln(string s)
+        {
+            WriteLog(s + Environment.NewLine);
+        }
+
+        public void WriteLog(string s)
+        {
+            _logtext += s;
+            Console.Write(s);
+            streamWriter.Write(s);
+        }
+
+        public void ClearLog()
+        {
+            _logtext = string.Empty;
+        }
+
+    }
 }

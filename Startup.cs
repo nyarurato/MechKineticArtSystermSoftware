@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Mvc.Razor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,11 +37,17 @@ namespace MechKineticsArtSoftware
             services.AddSingleton<KeyFrameManager>();
             services.AddSingleton<WebAPIManage>();
 
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.AddMvc()
+                    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+                    .AddDataAnnotationsLocalization();
         }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -52,6 +59,15 @@ namespace MechKineticsArtSoftware
                 app.UseHsts();
             }
 
+            //For Localization
+            var supportedCultures = new[] { "en-US", "ja", "zh-CN" };
+            var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(supportedCultures[0])
+                                                                    .AddSupportedCultures(supportedCultures)
+                                                                    .AddSupportedUICultures(supportedCultures);
+            //For Localization by client
+            app.UseRequestLocalization(localizationOptions);
+
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -59,6 +75,7 @@ namespace MechKineticsArtSoftware
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllers();
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
@@ -87,7 +104,7 @@ namespace MechKineticsArtSoftware
                 browserWindow.Show();
                 browserWindow.Maximize();
             };
-            Electron.Menu.SetApplicationMenu(new MenuItem[] { });
+            //Electron.Menu.SetApplicationMenu(new MenuItem[] { });
         }
     }
 }

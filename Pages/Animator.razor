@@ -6,11 +6,12 @@
 @inject ConfigManager configmgr
 @inject WebAPIManage apidata
 @inject KeyFrameManager kfmgr
+@inject IStringLocalizer<Animator> localizer
 
-<h1>Motion Creator</h1>
+<h1>@localizer["motioncreator"]</h1>
 
 <div class="form-group">
-    <h3>KeyFrame</h3>
+    <h3>@localizer["keyframe"]</h3>
     <div class="row">
         <div class="col-9">
             <input type="range" class="form-control-range" @onchange="OnKeyFrameChange" max="@configmgr.configData.max_keyframe" value="@current_keyframe">
@@ -24,25 +25,25 @@
                     {
                         if (kfmgr.keyframes[local].action == Keyframe.Action.MOVETO)
                         {
-                            <span class="badge badge-success">Move</span>
+                    <span class="badge badge-success">@localizer["move"]</span>
                         }
                         else if (kfmgr.keyframes[local].action == Keyframe.Action.RAPIDMOVE)
                         {
-                            <span class="badge badge-warning">Rapid</span>
+                    <span class="badge badge-warning">@localizer["rapid"]</span>
                         }
                         else if (kfmgr.keyframes[local].action == Keyframe.Action.WAITTIME)
                         {
-                            <span class="badge badge-primary">Wait</span>
+                    <span class="badge badge-primary">@localizer["wait"]</span>
 
                         }
                         else if (kfmgr.keyframes[local].action == Keyframe.Action.ENDOFPROGRAM)
                         {
-                            <span class="badge badge-danger">END</span>
+                    <span class="badge badge-danger">@localizer["end"]</span>
 
                         }
                         else
                         {
-                            <span class="badge badge-secondary">None</span>
+                    <span class="badge badge-secondary">@localizer["none"]</span>
 
                         }
                     }
@@ -60,16 +61,16 @@
 
 
 <div class="form-group">
-    <h4>KeyFrameAction</h4>
+    <h4>@localizer["keyframeaction"]</h4>
     <div class="row">
         <div class="col-5">
             <div>
                 <select @bind="current_action" class="form-control">
-                    <option value="1">MoveTo</option>
-                    <option value="2">RapidMove</option>
-                    <option value="3">WaitTime</option>
-                    <option value="4" disabled>WaitOtherBoard</option>
-                    <option value="255">EndProgram</option>
+                    <option value="1">@localizer["moveto"]</option>
+                    <option value="2">@localizer["rapidmove"]</option>
+                    <option value="3">@localizer["waittime"]</option>
+                    <option value="4" disabled>@localizer["waitotherboard"]</option>
+                    <option value="255">@localizer["endprogram"]</option>
                 </select>
             </div>
         </div>
@@ -78,7 +79,7 @@
             @if (feedrate_inputbox_show_flag)
             {
                 <div>
-                    Feedrate
+                    @localizer["feedrate"]
                     <input type="number" @bind="feedrate" step="100" />
                 </div>
             }
@@ -86,31 +87,31 @@
             @if (waittime_inputbox_show_flag)
             {
                 <div>
-                    WaitTime
+                    @localizer["waitduration"]
                     <input type="number" @bind="wait_time" step="0.5" />
                 </div>
             }
         </div>
     </div>
-    <h4>KeyFrame Utility</h4>
+    <h4>@localizer["keyframeutility"]</h4>
     <div class="row">
         <div class="col-2">
-            <button class="btn btn-primary" @onclick="OnClickSetKeyFrame">SetKeyFrame</button>
+            <button class="btn btn-primary" @onclick="OnClickSetKeyFrame">@localizer["setkeyframe"]</button>
         </div>
         <div class="col-2">
-            <button class="btn btn-primary" @onclick="OnClickMove">TestMove</button>
+            <button class="btn btn-primary" @onclick="OnClickMove">@localizer["testmove"]</button>
         </div>
         <div class="col-2">
-            <button class="btn btn-secondary" @onclick="OnClickMakeNC">MakeNCFile</button>
+            <button class="btn btn-secondary" @onclick="OnClickMakeNC">@localizer["makenc"]</button>
         </div>
         <div class="col-2">
-            <button class="btn btn-secondary" @onclick="OnClickSendNC">SendNCFile</button>
+            <button class="btn btn-secondary" @onclick="OnClickSendNC">@localizer["sendnc"]</button>
         </div>
         <div class="col-2">
-            <button class="btn btn-success" @onclick=@(() => kfmgr.Save("./keyframes.xml") )>SaveKeyFrameData</button>
+            <button class="btn btn-success" @onclick=@(() => kfmgr.Save("./keyframes.xml") )>@localizer["savekeyframedata"]</button>
         </div>
         <div class="col-2">
-            <button class="btn btn-light" @onclick=@(() => { kfmgr.Load("./keyframes.xml"); SyncDatasFromKeyFrame();} )>LoadKeyFrameData</button>
+            <button class="btn btn-light" @onclick=@(() => { kfmgr.Load("./keyframes.xml"); SyncDatasFromKeyFrame();} )>@localizer["loadkeyframedata"]</button>
         </div>
     </div>
 </div>
@@ -121,8 +122,8 @@
 
     @for (int i = 0; i < configmgr.configData.num_motor; i++)
     {
-        int local = i;
-        <AnimatorMoveToWidget motor_index=local @bind-movetopos=unit_positions[local] currentpos=@apidata.motor_list[local].position></AnimatorMoveToWidget>
+        int local_val = i;
+        <AnimatorMoveToWidget motor_index=local_val @bind-movetopos=@unit_positions[local_val] currentpos=@apidata.motor_list[local_val].position></AnimatorMoveToWidget>
     }
 
 </div>
@@ -217,6 +218,7 @@
         kfmgr.keyframes[current_keyframe].ArrayCopy(unit_positions);
 
         current_keyframe++;
+        SyncDatasFromKeyFrame();
     }
 
     void OnClickMakeNC()
@@ -312,7 +314,7 @@
 
     }
 
-    
+
 
 }
 

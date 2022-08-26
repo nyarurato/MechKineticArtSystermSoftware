@@ -2,15 +2,16 @@
 @inject LogWriter logger
 @inject WebAPIManage apidatas
 @inject ConfigManager configmgr
-@implements IDisposable
+@inject IStringLocalizer<AnimatorMoveToWidget> localizer
+@implements IAsyncDisposable
 
 <div class="card mb-4">
-    <h6 class="card-header">Motor @motor_index</h6>
+    <h6 class="card-header">@localizer["motor"] @motor_index</h6>
     <div class="card-body">
         <div class="row">
             <div class="input-group m-1">
                 <div class="col">
-                    <p>Position</p>
+                    <p>@localizer["position"]</p>
                 </div>
                 <div class="col"> 
                     <input type="number" class="form-control" placeholder="MoveToPosition" @bind="movetopos">
@@ -19,7 +20,7 @@
         </div>
     </div>
     <div class="card-footer">
-        <p class="card-text">Current Pos: @currentpos</p>
+        <p class="card-text">@localizer["currentpos"] : @currentpos</p>
     </div>
 </div>
 
@@ -74,16 +75,23 @@
         {
 
             _currentpos = apidatas.motor_list[motor_index].position;
-            await InvokeAsync(StateHasChanged);
+            try
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+            catch(Exception e)
+            {
+                logger.WriteLogln($"Update event miss:{e.Message}");
+            }
 
         }, new System.Threading.AutoResetEvent(false), 0, configmgr.configData.position_update_interval/2);// fire half of update time
 
 
     }
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        timer.Dispose();
+        return timer?.DisposeAsync() ?? ValueTask.CompletedTask;
     }
 
 }

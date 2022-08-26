@@ -1,14 +1,15 @@
 @using MechKineticsArtSoftware
 @inject LogWriter logger
 @inject WebAPIManage apidata
-@implements IDisposable
+@inject IStringLocalizer<JogWidget> localizer
+@implements IAsyncDisposable
 
 
 <div class="card">
-    <h5 class="card-header">Motor @motor_index</h5>
+    <h5 class="card-header">@localizer["motor"] @motor_index</h5>
     <div class="card-body">
         <div class="row">
-            <h6 class="card-subtitle m-1">Jog</h6>
+            <h6 class="card-subtitle m-1">@localizer["jog"]</h6>
         </div>
         <div class="row">
             <div class="input-group m-1">
@@ -25,7 +26,7 @@
             </div>
         </div>
         <div class="row">
-            <h6 class="card-subtitle m-1">MoveTo</h6>
+            <h6 class="card-subtitle m-1">@localizer["moveto"]</h6>
         </div>
         <div class="row">
             <div class="input-group m-1">
@@ -33,13 +34,13 @@
                     <input type="number" class="form-control" placeholder="MoveToPosition" @bind="moveto">
                 </div>
                 <div class="col">
-                    <button class="btn btn-success" type="button" @onclick="ClickMoveTo">MoveTo</button>
+                    <button class="btn btn-success" type="button" @onclick="ClickMoveTo">@localizer["move"]</button>
                 </div>
             </div>
         </div>
     </div>
     <div class="card-footer">
-        Current Pos: @current_pos
+        @localizer["currentpos"]: @current_pos
     </div>
 </div>
 
@@ -77,16 +78,23 @@
         {
 
             current_pos = apidata.motor_list[motor_index].position;
-            await InvokeAsync(StateHasChanged);
+            try
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+            catch(Exception e)
+            {
+                logger.WriteLogln($"Update event miss:{e.Message}");
+            }
 
         }, new System.Threading.AutoResetEvent(false), 0, 500); // fire every 500 milliseconds
 
 
     }
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        timer.Dispose();
+        return timer?.DisposeAsync() ?? ValueTask.CompletedTask;
     }
 
 }
