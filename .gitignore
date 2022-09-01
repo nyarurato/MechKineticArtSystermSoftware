@@ -367,3 +367,4 @@ nc
 *.nc
 log.txt
 keyframes.xml
+save_setting.json

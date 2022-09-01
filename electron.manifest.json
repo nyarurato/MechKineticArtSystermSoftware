@@ -33,7 +33,8 @@
     ],
 
     "win": {
-      "target": "dir"
+      "target": "dir",
+      "icon": "../../../Assets/icon.png"
     },
     "linux": {
       "target": "dir"

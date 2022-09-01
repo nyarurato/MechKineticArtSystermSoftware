@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CsvHelper.Configuration;
 
 
 namespace MechKineticsArtSoftware
@@ -17,7 +18,7 @@ namespace MechKineticsArtSoftware
             WAITTIME = 3,
             ENDOFPROGRAM = 255
         };
-
+        
         public int index { get; set; }
         public Action action { get; set; }
         public float wait_time { get; set; }

@@ -1,7 +1,25 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+@font-face {
+    font-family: "NotoSansJP";
+    font-weight: 500;
+    src: url("../font/NotoSansJP-Regular.otf") format('opentype')
+}
+
+@font-face {
+    font-family: "NotoSansJP";
+    font-weight: 400;
+    src: url("../font/NotoSansJP-Light.otf") format('opentype')
+}
+
+@font-face {
+    font-family: "NotoSansJP";
+    font-weight: 700;
+    src: url("../font/NotoSansJP-Bold.otf") format('opentype')
+}
+
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: "NotoSansJP",'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 a, .btn-link {

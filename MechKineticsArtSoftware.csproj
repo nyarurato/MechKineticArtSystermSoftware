@@ -4,6 +4,7 @@
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="28.0.1" />
     <PackageReference Include="ElectronNET.API" Version="13.5.1" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.8" />
   </ItemGroup>
@@ -14,6 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="nc\" />
-    <Folder Include="Assets\" />
+    <Folder Include="wwwroot\font\" />
   </ItemGroup>
 </Project>

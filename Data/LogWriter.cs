@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Text.Encodings;
+using CsvHelper;
 
 namespace MechKineticsArtSoftware
 {
@@ -15,11 +16,16 @@ namespace MechKineticsArtSoftware
 
         StreamWriter streamWriter;
 
+        string writerpath = "./log.txt";
+
         public LogWriter()
         {
             _logtext = "";
-            streamWriter = new StreamWriter("./log.txt");
+            streamWriter = new StreamWriter(writerpath);
             streamWriter.AutoFlush = true;
+
+            WriteLogln($"Current Dir:{Environment.CurrentDirectory}");
+
         }
 
         ~LogWriter()

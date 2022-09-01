@@ -163,4 +163,7 @@
   <data name="keyframeaction" xml:space="preserve">
     <value>KeyFrameAction</value>
   </data>
+  <data name="activeslider" xml:space="preserve">
+    <value>Slider Input Activate</value>
+  </data>
 </root>

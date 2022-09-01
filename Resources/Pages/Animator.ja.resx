@@ -163,4 +163,7 @@
   <data name="keyframeaction" xml:space="preserve">
     <value>キーフレームにおける動作</value>
   </data>
+  <data name="activeslider" xml:space="preserve">
+    <value>スライダー有効化</value>
+  </data>
 </root>

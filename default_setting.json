@@ -8,8 +8,8 @@
     }
 
   ],
-  
-  "num_motor":12,
+
+  "num_motor": 12,
   "nc_file_name": "out",
   "nc_file_name_ext": ".nc",
   "save_path_on_board": "0://gcodes/mkas/program.nc",
@@ -31,6 +31,7 @@
   "dafault_movetime": 10,
   "max_keyframe": 10,
   "position_update_interval": 1000,
-  "is_enable_ncfile_loop": false
-
+  "is_enable_ncfile_loop": false,
+  "min_move_range": 0,
+  "max_move_range": 300
 }

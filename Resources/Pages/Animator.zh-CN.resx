@@ -183,4 +183,7 @@
   <data name="keyframeaction" xml:space="preserve">
     <value>关键帧操作（KeyFrameAction</value>
   </data>
+  <data name="activeslider" xml:space="preserve">
+    <value>滑块输入激活</value>
+  </data>
 </root>

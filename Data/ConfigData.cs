@@ -40,6 +40,12 @@ namespace MechKineticsArtSoftware.Data
 
         public bool is_enable_ncfile_loop { get; set; }
 
+        public float max_move_range { get; set; }
+
+        public float min_move_range { get; set; }
+
+
+
         public Dictionary<int,(int,int,int)> GetMotorAssign()
         {
             Dictionary<int, (int, int, int)> assign_dic = new Dictionary<int, (int, int, int)>();
@@ -63,5 +69,6 @@ namespace MechKineticsArtSoftware.Data
             boards_info = new List<BoardInfo>();
             motor_assign = new Dictionary<string, string>();
         }
+
     }
 }

@@ -13,8 +13,17 @@
                 <div class="col">
                     <p>@localizer["position"]</p>
                 </div>
-                <div class="col"> 
-                    <input type="number" class="form-control" placeholder="MoveToPosition" @bind="movetopos">
+                <div class="col">
+                    @if (is_enable_slider)
+                    {
+                        <input type="range" class="form-control" placeholder="MoveToPosition" @bind="movetopos" max="@configmgr.configData.max_move_range" min="@configmgr.configData.min_move_range">
+                        <span>@movetopos</span>
+                    }
+                    else
+                    {
+                        <input type="number" class="form-control" placeholder="MoveToPosition" @bind="movetopos">
+
+                    }
                 </div>
             </div>
         </div>
@@ -30,6 +39,9 @@
 
     [Parameter]
     public EventCallback<float> currentposChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> is_enable_sliderChanged { get; set; }
 
     private System.Threading.Timer timer;
 
@@ -67,6 +79,24 @@
             }
         }
     }
+
+    bool _is_enable_slider = false;
+
+    [Parameter]
+    public bool is_enable_slider
+    {
+        get { return _is_enable_slider; }
+        set
+        {
+            if (_is_enable_slider != value)
+            {
+                _is_enable_slider = value;
+                is_enable_sliderChanged.InvokeAsync(_is_enable_slider);
+            }
+        }
+    }
+
+
 
     protected override async Task OnInitializedAsync()
     {

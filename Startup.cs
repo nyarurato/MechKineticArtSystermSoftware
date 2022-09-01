@@ -93,7 +93,8 @@ namespace MechKineticsArtSoftware
             {
                 Width = 1152,
                 Height = 940,
-                Show = false
+                Show = false,
+                WebPreferences = new WebPreferences() { EnableRemoteModule = true }
             });
 
             await browserWindow.WebContents.Session.ClearCacheAsync();

@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using MechKineticsArtSoftware.Data;
+using System.Threading.Tasks;
 
 namespace MechKineticsArtSoftware
 {
@@ -20,7 +21,10 @@ namespace MechKineticsArtSoftware
             LoadDefaultSetting();
         }
 
-
+        public ConfigData GetClonedConfigData()
+        {
+            return JsonSerializer.Deserialize<ConfigData>(JsonSerializer.Serialize(configData));
+        }
         void LoadDefaultSetting(string default_setting_fname = "./default_setting.json")
         {
             using (StreamReader sr = new StreamReader(default_setting_fname))
@@ -34,6 +38,15 @@ namespace MechKineticsArtSoftware
             using(StreamWriter sw = new StreamWriter(file_path))
             {
                 sw.Write(JsonSerializer.Serialize(configData));
+                sw.Flush();
+            }
+        }
+
+        public void SaveSetting(ConfigData cf,string file_path = "./save_setting.json")
+        {
+            using (StreamWriter sw = new StreamWriter(file_path))
+            {
+                sw.Write(JsonSerializer.Serialize(cf));
                 sw.Flush();
             }
         }

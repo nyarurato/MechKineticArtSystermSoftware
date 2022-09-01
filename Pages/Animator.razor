@@ -114,16 +114,30 @@
             <button class="btn btn-light" @onclick=@(() => { kfmgr.Load("./keyframes.xml"); SyncDatasFromKeyFrame();} )>@localizer["loadkeyframedata"]</button>
         </div>
     </div>
+    <div class="row">
+        
+        
+        <div class="col-2">
+            <button class="btn btn-success" @onclick=@(() => kfmgr.SaveAsCsv("./keyframes.csv") )>@localizer["savekeyframedata"] CSV</button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-light" @onclick=@(() => { kfmgr.LoadAsCsv("./keyframes.csv"); SyncDatasFromKeyFrame();} )>@localizer["loadkeyframedata"] CSV</button>
+        </div>
+    </div>
 </div>
 
-
+<div class="btn-group-toggle" data-toggle="buttons">
+    <label class="btn btn-secondary active">
+        <input type="checkbox" autocomplete="off" @bind="is_active_slider_input">@localizer["activeslider"] @is_active_slider_input
+    </label>
+</div>
 
 <div class="card-deck">
 
     @for (int i = 0; i < configmgr.configData.num_motor; i++)
     {
         int local_val = i;
-        <AnimatorMoveToWidget motor_index=local_val @bind-movetopos=@unit_positions[local_val] currentpos=@apidata.motor_list[local_val].position></AnimatorMoveToWidget>
+        <AnimatorMoveToWidget motor_index=local_val @bind-movetopos=@unit_positions[local_val] currentpos=@apidata.motor_list[local_val].position @bind-is_enable_slider="is_active_slider_input"></AnimatorMoveToWidget>
     }
 
 </div>
@@ -153,6 +167,8 @@
 
     float wait_time = 4.5f;
 
+    bool is_active_slider_input = false;
+
 
     void OnKeyFrameChange(ChangeEventArgs e)
     {
@@ -168,6 +184,13 @@
             feedrate = kfmgr.keyframes[current_keyframe].move_speed;
             wait_time = kfmgr.keyframes[current_keyframe].wait_time;
             current_action = ((int)kfmgr.keyframes[current_keyframe].action);
+        }
+
+        if (current_keyframe > configmgr.configData.max_keyframe)
+        {
+            configmgr.configData.max_keyframe = current_keyframe;
+            StateHasChanged();
+
         }
     }
 
@@ -218,6 +241,7 @@
         kfmgr.keyframes[current_keyframe].ArrayCopy(unit_positions);
 
         current_keyframe++;
+
         SyncDatasFromKeyFrame();
     }
 
