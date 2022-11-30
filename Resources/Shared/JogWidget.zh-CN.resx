@@ -101,7 +101,7 @@
     <value>电机</value>
   </data>
   <data name="jog" xml:space="preserve">
-    <value>缓步走</value>
+    <value>手动</value>
   </data>
   <data name="moveto" xml:space="preserve">
     <value>移动到</value>

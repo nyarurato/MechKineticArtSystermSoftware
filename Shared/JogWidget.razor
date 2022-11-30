@@ -89,7 +89,7 @@
 
         }, new System.Threading.AutoResetEvent(false), 0, 500); // fire every 500 milliseconds
 
-
+        await base.OnInitializedAsync();
     }
 
     public ValueTask DisposeAsync()

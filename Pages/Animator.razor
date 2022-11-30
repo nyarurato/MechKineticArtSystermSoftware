@@ -2,6 +2,8 @@
 
 @using MechKineticsArtSoftware.Data
 @using System.IO;
+@using ElectronNET.API.Entities
+@using ElectronNET.API;
 @inject LogWriter logger
 @inject ConfigManager configmgr
 @inject WebAPIManage apidata
@@ -19,36 +21,36 @@
                 @for (int i = 0; i < configmgr.configData.max_keyframe; i++)
                 {
                     int local = i;
-                <span class="col">
+                    <span class="col">
 
-                    @if (kfmgr.keyframes.Count > local)
-                    {
-                        if (kfmgr.keyframes[local].action == Keyframe.Action.MOVETO)
+                        @if (kfmgr.keyframes.Count > local)
                         {
-                    <span class="badge badge-success">@localizer["move"]</span>
-                        }
-                        else if (kfmgr.keyframes[local].action == Keyframe.Action.RAPIDMOVE)
-                        {
-                    <span class="badge badge-warning">@localizer["rapid"]</span>
-                        }
-                        else if (kfmgr.keyframes[local].action == Keyframe.Action.WAITTIME)
-                        {
-                    <span class="badge badge-primary">@localizer["wait"]</span>
+                            if (kfmgr.keyframes[local].action == Keyframe.Action.MOVETO)
+                            {
+                                <span class="badge badge-success">@localizer["move"]</span>
+                            }
+                            else if (kfmgr.keyframes[local].action == Keyframe.Action.RAPIDMOVE)
+                            {
+                                <span class="badge badge-warning">@localizer["rapid"]</span>
+                            }
+                            else if (kfmgr.keyframes[local].action == Keyframe.Action.WAITTIME)
+                            {
+                                <span class="badge badge-primary">@localizer["wait"]</span>
 
-                        }
-                        else if (kfmgr.keyframes[local].action == Keyframe.Action.ENDOFPROGRAM)
-                        {
-                    <span class="badge badge-danger">@localizer["end"]</span>
+                            }
+                            else if (kfmgr.keyframes[local].action == Keyframe.Action.ENDOFPROGRAM)
+                            {
+                                <span class="badge badge-danger">@localizer["end"]</span>
 
-                        }
-                        else
-                        {
-                    <span class="badge badge-secondary">@localizer["none"]</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">@localizer["none"]</span>
 
+                            }
                         }
-                    }
 
-                </span>
+                    </span>
                 }
             </div>
 
@@ -101,22 +103,28 @@
         <div class="col-2">
             <button class="btn btn-primary" @onclick="OnClickMove">@localizer["testmove"]</button>
         </div>
+    </div>
+    <div class="row">
         <div class="col-2">
             <button class="btn btn-secondary" @onclick="OnClickMakeNC">@localizer["makenc"]</button>
         </div>
         <div class="col-2">
             <button class="btn btn-secondary" @onclick="OnClickSendNC">@localizer["sendnc"]</button>
         </div>
-        <div class="col-2">
-            <button class="btn btn-success" @onclick=@(() => kfmgr.Save("./keyframes.xml") )>@localizer["savekeyframedata"]</button>
-        </div>
-        <div class="col-2">
-            <button class="btn btn-light" @onclick=@(() => { kfmgr.Load("./keyframes.xml"); SyncDatasFromKeyFrame();} )>@localizer["loadkeyframedata"]</button>
-        </div>
     </div>
     <div class="row">
-        
-        
+
+        <div class="col-2">
+            <button class="btn btn-success" @onclick="OnClickSave">@localizer["savekeyframedata"]</button>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-light" @onclick="OnClickLoad">@localizer["loadkeyframedata"]</button>
+        </div>
+    </div>
+    <!--
+    <div class="row">
+
+
         <div class="col-2">
             <button class="btn btn-success" @onclick=@(() => kfmgr.SaveAsCsv("./keyframes.csv") )>@localizer["savekeyframedata"] CSV</button>
         </div>
@@ -124,6 +132,7 @@
             <button class="btn btn-light" @onclick=@(() => { kfmgr.LoadAsCsv("./keyframes.csv"); SyncDatasFromKeyFrame();} )>@localizer["loadkeyframedata"] CSV</button>
         </div>
     </div>
+    -->
 </div>
 
 <div class="btn-group-toggle" data-toggle="buttons">
@@ -264,10 +273,25 @@
     protected override async Task OnInitializedAsync()
     {
         unit_positions = new float[configmgr.configData.num_motor];
+        await base.OnInitializedAsync();
     }
 
     async void OnClickSendNC()
     {
+        MessageBoxOptions messageBoxOptions = new MessageBoxOptions(localizer["nc_run_message"])
+        {
+            Type = MessageBoxType.info,
+            Title = "Run NC File",
+            Buttons = new string[]{ "OK", "Cancel" },
+
+        };
+
+        MessageBoxResult res = await Electron.Dialog.ShowMessageBoxAsync(messageBoxOptions);
+
+        if (res.Response == 1)//Cancel
+            return;
+
+
         for (int i = 0; i < configmgr.configData.num_board_group; i++)
         {
             try
@@ -301,7 +325,7 @@
         {
             var mlist = apidata.GetMotorListOnSameBoardGroup(i);
             bool is_exist_e_axis = false;
-            foreach(Motor motor in mlist)
+            foreach (Motor motor in mlist)
             {
 
                 if (motor.is_e_axis_motor)
@@ -336,6 +360,92 @@
         }
 
 
+    }
+
+    async void OnClickSave()
+    {
+        var saveOptions = new SaveDialogOptions
+        {
+            Title = "Save motion datas",
+            DefaultPath = await Electron.App.GetAppPathAsync(),
+            Filters = new FileFilter[]
+            {
+                new FileFilter{ Name = "CSV",Extensions= new string[]{"csv"} },
+                new FileFilter{ Name = "XML",Extensions= new string[]{"xml"} }
+
+                }
+        };
+        string sa_path = await Electron.Dialog.ShowSaveDialogAsync(Electron.WindowManager.BrowserWindows.First(), saveOptions);
+
+        if (sa_path == "")
+            return;
+
+        string ext = Path.GetExtension(sa_path);
+
+        if (string.Equals(ext, ".csv", StringComparison.OrdinalIgnoreCase))//csv
+        {
+            kfmgr.SaveAsCsv(sa_path);
+            logger.WriteLogln($"Save CSV: {sa_path}");
+        }
+        else if (string.Equals(ext, ".xml", StringComparison.OrdinalIgnoreCase))//xml
+        {
+            kfmgr.Save(sa_path);
+            logger.WriteLogln($"Save XML: {sa_path}");
+
+        }
+        else
+        {
+            logger.WriteLogln($"CAN NOT Save: invalid extension :{ext}");
+
+        }
+
+
+    }
+
+    async void OnClickLoad()
+    {
+        var openOptions = new OpenDialogOptions
+        {
+            Title = "open motion datas",
+            DefaultPath = await Electron.App.GetAppPathAsync(),
+            Filters = new FileFilter[]
+            {
+                new FileFilter{ Name = "CSV",Extensions= new string[]{"csv"} },
+                new FileFilter{ Name = "XML",Extensions= new string[]{"xml"} }
+
+                },
+
+        };
+        string[] f_path = await Electron.Dialog.ShowOpenDialogAsync(Electron.WindowManager.BrowserWindows.First(), openOptions);
+
+        logger.WriteLogln($"{f_path.First()}");
+
+
+        if (f_path.Length == 0)
+            return;
+
+        string ext = Path.GetExtension(f_path.First());
+
+        if (string.Equals(ext, ".csv", StringComparison.OrdinalIgnoreCase))//csv
+        {
+            kfmgr.LoadAsCsv(f_path.First());
+            logger.WriteLogln($"Load CSV: {f_path}");
+
+        }
+        else if (string.Equals(ext, ".xml", StringComparison.OrdinalIgnoreCase))//xml
+        {
+            kfmgr.Load(f_path.First());
+            logger.WriteLogln($"Load XML: {f_path}");
+
+        }
+        else
+        {
+            logger.WriteLogln($"CAN NOT Load: invalid extension :{ext}");
+
+        }
+
+        SyncDatasFromKeyFrame();
+        StateHasChanged();
     }
 
 

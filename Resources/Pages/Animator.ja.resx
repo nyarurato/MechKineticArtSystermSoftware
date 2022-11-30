@@ -166,4 +166,7 @@
   <data name="activeslider" xml:space="preserve">
     <value>スライダー有効化</value>
   </data>
+  <data name="nc_run_message" xml:space="preserve">
+    <value>NCファイルを送信して実行します</value>
+  </data>
 </root>

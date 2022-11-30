@@ -77,6 +77,7 @@
                 <option value="17">E8</option>
                 <option value="18">E9</option>
             </select>
+            
         </div>
         }
 
@@ -128,6 +129,7 @@
     protected override async Task OnInitializedAsync()
     {
         tmp_config = configmgr.GetClonedConfigData();
+        await base.OnInitializedAsync();
 
     }
 }

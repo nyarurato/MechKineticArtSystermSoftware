@@ -43,6 +43,8 @@
                 logger.WriteLogln($"Update event miss:{e.Message}");
             }
         }, new System.Threading.AutoResetEvent(false), 0, configmgr.configData.position_update_interval / 2); // fire half of update time
+        
+        await base.OnInitializedAsync();
 
     }
 

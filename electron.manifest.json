@@ -10,7 +10,7 @@
   "build": {
     "appId": "com.MechKineticsArtSoftware.app",
     "productName": "MechKineticsArtSoftware",
-    "copyright": "Copyright © 2020 Nyaru",
+    "copyright": "Copyright © 2022 Nyaru",
     "buildVersion": "1.0.0",
     "compression": "maximum",
     "directories": {

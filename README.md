@@ -1,4 +1,13 @@
 
+## Build
+```
+electronize build /target win
+```
+
+## Dependencies
+- .NET5
+- Blazor
+- Electron.NET
 
 ## LICENSE
 

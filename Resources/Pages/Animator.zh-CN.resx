@@ -186,4 +186,7 @@
   <data name="activeslider" xml:space="preserve">
     <value>滑块输入激活</value>
   </data>
+  <data name="nc_run_message" xml:space="preserve">
+    <value>传输和执行NC文件</value>
+  </data>
 </root>

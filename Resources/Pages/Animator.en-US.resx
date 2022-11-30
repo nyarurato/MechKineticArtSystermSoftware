@@ -166,4 +166,7 @@
   <data name="activeslider" xml:space="preserve">
     <value>Slider Input Activate</value>
   </data>
+  <data name="nc_run_message" xml:space="preserve">
+    <value>Start Running NC File</value>
+  </data>
 </root>
