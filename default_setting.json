@@ -14,6 +14,7 @@
   "nc_file_name_ext": ".nc",
   "save_path_on_board": "0://gcodes/mkas/program.nc",
   "save_nc_path_on_pc_directory": "./nc/",
+  "save_path_sys_on_board": "0://sys/",
   "motor_assign": {
     "0": "0.0.0",
     "1": "0.0.1",
@@ -33,5 +34,7 @@
   "position_update_interval": 1000,
   "is_enable_ncfile_loop": false,
   "min_move_range": 0,
-  "max_move_range": 300
+  "max_move_range": 300,
+  "num_trigger": 5,
+  "trigger_start_index": 2
 }

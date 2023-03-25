@@ -31,6 +31,9 @@ namespace MechKineticsArtSoftware.Data
 
         public string save_path_on_board { get; set; }
         public string save_nc_path_on_pc_directory { get; set; }
+
+        public string save_path_sys_on_board { get; set; }
+
         public Dictionary<string,string> motor_assign { get; set; }
 
         public float dafault_movetime { get; set; }
@@ -43,6 +46,10 @@ namespace MechKineticsArtSoftware.Data
         public float max_move_range { get; set; }
 
         public float min_move_range { get; set; }
+
+        public int num_trigger { get; set; }
+
+        public int trigger_start_index { get; set; }
 
 
 
