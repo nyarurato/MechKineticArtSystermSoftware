@@ -3,7 +3,6 @@
 @inject LogWriter logger
 @inject ConfigManager configmgr
 @inject IStringLocalizer<Controller> localizer
-@implements IAsyncDisposable
 
 
 <h1>@localizer["title"]</h1>
@@ -17,39 +16,8 @@
         }
     </div>
 
-    <div class="form-group">
-        <h4>@localizer["logs"]</h4>
-        <textarea class="form-control" @bind="@logtext" rows="5" readonly>Log Text</textarea>
-    </div>
 </div>
 
 @code {
-    string logtext = "";
-    private System.Threading.Timer timer;
 
-    protected override async Task OnInitializedAsync()
-    {
-        // Refresh log text
-
-        timer = new System.Threading.Timer(async (object? stateInfo) =>
-        {
-            logtext = logger.text;
-            try
-            {
-                await InvokeAsync(StateHasChanged);
-            }
-            catch(Exception e)
-            {
-                logger.WriteLogln($"Update event miss:{e.Message}");
-            }
-        }, new System.Threading.AutoResetEvent(false), 0, configmgr.configData.position_update_interval / 2); // fire half of update time
-        
-        await base.OnInitializedAsync();
-
-    }
-
-    public ValueTask DisposeAsync()
-    {
-        return timer?.DisposeAsync() ?? ValueTask.CompletedTask;
-    }
 }

@@ -3,8 +3,8 @@
 @inject Microsoft.Extensions.Configuration.IConfiguration config
 
 @if(culture != null)
-            {
-
+{
+    <span>Language</span>
     <form class="form-inline">
     <select class="form-control mr-2" @bind="slectculture">
         @foreach(var cul in culture)

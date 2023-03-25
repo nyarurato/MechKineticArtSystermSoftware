@@ -14,6 +14,8 @@
     <base href="~/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
+    <link href="lib/font-awesome/css/fontawesome.min.css" rel="stylesheet" />
+    <link href="lib/font-awesome/css/solid.min.css" rel="stylesheet" />
 </head>
 <body>
     <app>
@@ -32,14 +34,7 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
-    <script>
-        function getBrowserLocale() {
-            return (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.userLanguage || navigator.language || navigator.browserLanguage || 'en';
-        }
-        window.blazorCulture = {
-            get: () => window.localStorage['BlazorCulture'],
-            set: (value) => window.localStorage['BlazorCulture'] = value
-        };
-    </script>
+    <script src="script/functions.js"></script>
+
 </body>
 </html>

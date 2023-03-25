@@ -205,3 +205,22 @@ app {
         display: block;
     }
 }
+
+.toast-group {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+}
+
+.main .top-row > span {
+    margin-right: 0.5rem;
+}
+
+.movewidget-range{
+    padding:0 0;
+}
+
+.action-display {
+    padding: 0 0;
+}

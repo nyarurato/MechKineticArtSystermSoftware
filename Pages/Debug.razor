@@ -1,0 +1,70 @@
+﻿@page "/debug"
+
+@using MechKineticsArtSoftware.Data
+@using System.IO;
+@using ElectronNET.API.Entities
+@using ElectronNET.API;
+@inject LogWriter logger
+@inject ConfigManager configmgr
+@inject IStringLocalizer<Controller> localizer
+@inject IJSRuntime JSRuntime;
+@implements IAsyncDisposable
+
+<h1>Debug</h1>
+
+<div>
+    <div class="form-group">
+        <h3>@localizer["logs"]</h3>
+        <textarea class="form-control logtext" @bind="@logtext" rows="6" @ref="logarea_ref" readonly>Log Text</textarea>
+    </div>
+
+    <div>
+        <h3>BoardInfo</h3>
+        @for (int i = 0; i < configmgr.configData.num_board_group; i++)
+        {
+        <div>
+            <h5>Board @i</h5>
+
+        </div>
+        }
+    </div>
+</div>
+
+@code {
+    string logtext = "";
+    private System.Threading.Timer timer;
+    private ElementReference logarea_ref;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Refresh log text
+
+        timer = new System.Threading.Timer(async (object? stateInfo) =>
+        {
+            logtext = logger.text;
+            try
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception e)
+            {
+                logger.WriteLogln($"Update event miss:{e.Message}");
+            }
+        }, new System.Threading.AutoResetEvent(false), 0, configmgr.configData.position_update_interval / 2); // fire half of update time
+
+        await base.OnInitializedAsync();
+
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        return timer?.DisposeAsync() ?? ValueTask.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        await JSRuntime.InvokeVoidAsync("scrollTextareaToBottom", logarea_ref);
+        
+    }
+}

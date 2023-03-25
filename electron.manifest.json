@@ -40,7 +40,8 @@
       "target": "dir"
     },
     "mac": {
-      "target": "dir"
+      "target": "dir",
+      "icon": "../../../Assets/icon.png"
     }
   }
 }
