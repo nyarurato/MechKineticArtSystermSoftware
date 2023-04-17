@@ -127,4 +127,10 @@
   <data name="saveconfig" xml:space="preserve">
     <value>設定を保存</value>
   </data>
+  <data name="icon" xml:space="preserve">
+    <value>アイコン</value>
+  </data>
+  <data name="loadconfig" xml:space="preserve">
+    <value>設定ファイル読み込み</value>
+  </data>
 </root>

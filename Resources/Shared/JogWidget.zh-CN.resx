@@ -112,4 +112,7 @@
   <data name="currentpos" xml:space="preserve">
     <value>当前位置</value>
   </data>
+  <data name="targetpos" xml:space="preserve">
+    <value>位置规格</value>
+  </data>
 </root>

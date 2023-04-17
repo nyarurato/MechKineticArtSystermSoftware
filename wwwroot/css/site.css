@@ -223,4 +223,84 @@ app {
 
 .action-display {
     padding: 0 0;
+    display:inline-block;
+    max-width:2.5rem;
+}
+
+details.controllers {
+    border: 1px solid #858585;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    max-height: 5rem; /*for animation*/
+    transition: 0.5s; /*for animation*/
+    background: #FFFAF1;
+}
+
+details.controllers summary {
+    cursor: pointer;
+    font-weight: bold;
+    background: #FFFAF1;
+    padding: 5px;
+}
+
+details[open] {
+    max-height: 50rem; /*for animation*/
+}
+
+.acordion-control{
+    margin:0.5rem;
+}
+
+.animator-block {
+    margin: 0.5rem;
+    padding: 1rem;
+    border: 1px solid #858585;
+    background: #FFEDCB;
+    border-radius: 5px;
+}
+
+.current-pos {
+    margin-bottom: 1rem;
+    background: #C9C9C9;
+    border-radius:3px;
+}
+
+.pos-display-motor-name {
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.pos-display-position {
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+#jogwidgets{
+    max-height: 40rem;
+}
+
+.selectable-icon {
+    border: 1px solid #858585;
+    border-radius: 2px;
+    font-size:2rem;
+    width:2.5rem;
+    height:2.5rem;
+}
+
+.selectable-icon:hover {
+    background: #979797;
+}
+
+.selected-icon{
+    width:1rem;
+}
+
+.motor-icon{
+    margin-right:0.3rem;
+}
+
+.jog-move-unit{
+    min-width:5rem;
+    max-width:7rem;
 }

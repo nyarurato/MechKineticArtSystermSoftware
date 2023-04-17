@@ -4,6 +4,7 @@
 @using System.IO;
 @using ElectronNET.API.Entities
 @using ElectronNET.API;
+@using System.Threading;
 @inject LogWriter logger
 @inject ConfigManager configmgr
 @inject WebAPIManage apidata
@@ -12,143 +13,208 @@
 
 <h1>@localizer["motioncreator"]</h1>
 
-<div class="form-group">
-    <h3>@localizer["keyframe"]</h3>
-    <div class="row">
-        <div class="col-9">
-            <input type="range" class="form-control-range" @onchange="OnKeyFrameChange" max="@configmgr.configData.max_keyframe" value="@current_keyframe">
-            <div class="row">
-                @for (int i = 0; i < configmgr.configData.max_keyframe; i++)
-                {
-                    int local = i;
-                    <span class="col">
+<div class="animator-block">
+    <div class="form-group">
+        <h3>@localizer["keyframe"]</h3>
+        <div class="row">
+            <div class="col-8">
+                <div>
+                    <input type="range" class="form-control-range" @onchange="OnKeyFrameChange" max="@configmgr.configData.max_keyframe" min="0" value="@current_keyframe">
 
-                        @if (kfmgr.keyframes.Count > local)
+                    <!--Display Each Keyframe State below range bar-->
+                    <div class="row d-flex justify-content-between text-center">
+                        @for (int i = 0; i <= configmgr.configData.max_keyframe; i++)
                         {
-                            if (kfmgr.keyframes[local].action == Keyframe.Action.MOVETO)
-                            {
-                                <span class="badge badge-success">@localizer["move"]</span>
-                            }
-                            else if (kfmgr.keyframes[local].action == Keyframe.Action.RAPIDMOVE)
-                            {
-                                <span class="badge badge-warning">@localizer["rapid"]</span>
-                            }
-                            else if (kfmgr.keyframes[local].action == Keyframe.Action.WAITTIME)
-                            {
-                                <span class="badge badge-primary">@localizer["wait"]</span>
+                            int local = i;
+                            <span class="col action-display text-truncate">
 
-                            }
-                            else if (kfmgr.keyframes[local].action == Keyframe.Action.ENDOFPROGRAM)
-                            {
-                                <span class="badge badge-danger">@localizer["end"]</span>
+                                @if (kfmgr.keyframes.Count > local)
+                                {
+                                    if (kfmgr.keyframes[local].action == Keyframe.Action.MOVETO)
+                                    {
+                                        <span class="badge badge-success">@localizer["move"]</span>
+                                    }
+                                    else if (kfmgr.keyframes[local].action == Keyframe.Action.RAPIDMOVE)
+                                    {
+                                        <span class="badge badge-warning">@localizer["rapid"]</span>
+                                    }
+                                    else if (kfmgr.keyframes[local].action == Keyframe.Action.WAITTIME)
+                                    {
+                                        <span class="badge badge-primary">@localizer["wait"]</span>
 
-                            }
-                            else
-                            {
-                                <span class="badge badge-secondary">@localizer["none"]</span>
+                                    }
+                                    else if (kfmgr.keyframes[local].action == Keyframe.Action.ENDOFPROGRAM)
+                                    {
+                                        <span class="badge badge-danger">@localizer["end"]</span>
 
-                            }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-secondary">@localizer["none"]</span>
+
+                                    }
+                                }
+
+                            </span>
                         }
+                    </div>
+                </div>
 
-                    </span>
+            </div>
+            <div class="col-3">
+                <input type="number" @onchange="OnKeyFrameChange" step="1" value="@current_keyframe" />
+            </div>
+        </div>
+    </div>
+
+    <!-- KeyFrame Control Buttons -->
+    <details class="controllers">
+        <summary>@localizer["keyframeaction"]</summary>
+        <div class="form-group my-2">
+            <div class="row">
+                <div class="col-5">
+                    <div>
+                        <select @bind="current_action" class="form-control">
+                            <option value="1">@localizer["moveto"]</option>
+                            <option value="2">@localizer["rapidmove"]</option>
+                            <option value="3">@localizer["waittime"]</option>
+                            <option value="4" disabled>@localizer["waitotherboard"]</option>
+                            <option value="255">@localizer["endprogram"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-5">
+
+                    @if (feedrate_inputbox_show_flag)
+                    {
+                        <div>
+                            @localizer["feedrate"]
+                            <input type="number" @bind="feedrate" step="100" />
+                        </div>
+                    }
+
+                    @if (waittime_inputbox_show_flag)
+                    {
+                        <div>
+                            @localizer["waitduration"]
+                            <input type="number" @bind="wait_time" step="0.5" />
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4 my-2 mx-1">
+                    <button class="btn btn-success btn-block" @onclick="OnClickSetKeyFrame">@localizer["setkeyframe"]</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-3 mx-1">
+                    <button class="btn btn-warning btn-block" @onclick="OnClickInsertKeyFrame">@localizer["insertkey"]</button>
+                </div>
+                <div class="col-3 mx-1">
+                    <button class="btn btn-danger btn-block" @onclick="OnClickDeleteKeyFrame">@localizer["deletekey"]</button>
+                </div>
+            </div>
+
+
+            </div>
+</details>
+
+    <!-- Data Control Buttons -->
+    <details class="controllers">
+        <summary>@localizer["datacontrol"]</summary>
+        <div class="acordion-control my-2">
+            <div class="row">
+                <div class="col-3">
+                    <div class="input-group">
+                        <div class="d-flex align-items-center mr-1">@localizer["sendto"]:</div>
+                        <select class="form-control col-8" @bind="sendto_value">
+                            <option id="sendto0" value="-1">Default Motion</option>
+                            @for (int i = 0; i < configmgr.configData.num_trigger; i++)
+                            {
+                                // trigger0: emergency stop ,trigger1: stop ,trigger2-: motions
+                                // trigger0&1 is not settable for motion
+                                <option value="@(i + configmgr.configData.trigger_start_index)">Trigger @(i + configmgr.configData.trigger_start_index) Motion</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-primary" @onclick="OnClickSendNC">@localizer["sendnc"]</button>
+                </div>
+                
+            </div>
+
+            <div class="row my-2">
+
+                <div class="col-2">
+                    <button class="btn btn-success" @onclick="OnClickSave">@localizer["savekeyframedata"]</button>
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-light" @onclick="OnClickLoad">@localizer["loadkeyframedata"] </button>
+                </div>
+
+                <!--
+                <div class="col-2">
+                    <button class="btn btn-secondary" @onclick="OnClickMakeNC">@localizer["makenc"]</button>
+                </div>
+                 -->
+            </div>
+        </div>
+    </details>
+
+</div>
+
+<div class="animator-block">
+    <h4>@localizer["motoradjust"]</h4>
+    <div class="current-pos container">
+        <h5>@localizer["currentpos"]</h5>
+        <div class="row">
+            @for (int i = 0; i < configmgr.configData.num_motor; i++)
+            {
+                <div class="col">
+                    <div class="pos-display-motor-name">@localizer["motor"] @i</div>
+                    <div class="pos-display-position">@apidata.motor_list[i].position.ToString("f1")</div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="text-center my-2">
+        <button class="btn btn-primary" @onclick="OnClickMove">@localizer["testmove"]</button>
+    </div>
+    <h5>@localizer["current_key_pos"]</h5>
+    <div class="">
+        @*Each Motor Dispaly*@
+        <div class="row m-1">
+            <div class="col-6">
+                @for (int i = 0; i < configmgr.configData.num_motor; i++)
+                {
+                    int local_val = i;
+                    <AnimatorMoveToWidget motor_index=local_val @bind-movetopos=@unit_positions[local_val] currentpos=@apidata.motor_list[local_val].position @bind-is_enable_slider="is_active_slider_input"></AnimatorMoveToWidget>
                 }
             </div>
+            <div class="col-6">
 
-        </div>
-        <div class="col-3">
-            <input type="number" @onchange="OnKeyFrameChange" step="1" value="@current_keyframe" />
-        </div>
-    </div>
-</div>
-
-
-<div class="form-group">
-    <h4>@localizer["keyframeaction"]</h4>
-    <div class="row">
-        <div class="col-5">
-            <div>
-                <select @bind="current_action" class="form-control">
-                    <option value="1">@localizer["moveto"]</option>
-                    <option value="2">@localizer["rapidmove"]</option>
-                    <option value="3">@localizer["waittime"]</option>
-                    <option value="4" disabled>@localizer["waitotherboard"]</option>
-                    <option value="255">@localizer["endprogram"]</option>
-                </select>
             </div>
         </div>
-        <div class="col-5">
-
-            @if (feedrate_inputbox_show_flag)
-            {
-                <div>
-                    @localizer["feedrate"]
-                    <input type="number" @bind="feedrate" step="100" />
-                </div>
-            }
-
-            @if (waittime_inputbox_show_flag)
-            {
-                <div>
-                    @localizer["waitduration"]
-                    <input type="number" @bind="wait_time" step="0.5" />
-                </div>
-            }
-        </div>
     </div>
-    <h4>@localizer["keyframeutility"]</h4>
-    <div class="row">
-        <div class="col-2">
-            <button class="btn btn-primary" @onclick="OnClickSetKeyFrame">@localizer["setkeyframe"]</button>
-        </div>
-        <div class="col-2">
-            <button class="btn btn-primary" @onclick="OnClickMove">@localizer["testmove"]</button>
-        </div>
+    <div class="btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-secondary active">
+            <input type="checkbox" autocomplete="off" @bind="is_active_slider_input">@localizer["activeslider"] @is_active_slider_input
+        </label>
     </div>
-    <div class="row">
-        <div class="col-2">
-            <button class="btn btn-secondary" @onclick="OnClickMakeNC">@localizer["makenc"]</button>
-        </div>
-        <div class="col-2">
-            <button class="btn btn-secondary" @onclick="OnClickSendNC">@localizer["sendnc"]</button>
-        </div>
-    </div>
-    <div class="row">
-
-        <div class="col-2">
-            <button class="btn btn-success" @onclick="OnClickSave">@localizer["savekeyframedata"]</button>
-        </div>
-        <div class="col-2">
-            <button class="btn btn-light" @onclick="OnClickLoad">@localizer["loadkeyframedata"]</button>
-        </div>
-    </div>
-    <!--
-    <div class="row">
-
-
-        <div class="col-2">
-            <button class="btn btn-success" @onclick=@(() => kfmgr.SaveAsCsv("./keyframes.csv") )>@localizer["savekeyframedata"] CSV</button>
-        </div>
-        <div class="col-2">
-            <button class="btn btn-light" @onclick=@(() => { kfmgr.LoadAsCsv("./keyframes.csv"); SyncDatasFromKeyFrame();} )>@localizer["loadkeyframedata"] CSV</button>
-        </div>
-    </div>
-    -->
 </div>
-
-<div class="btn-group-toggle" data-toggle="buttons">
-    <label class="btn btn-secondary active">
-        <input type="checkbox" autocomplete="off" @bind="is_active_slider_input">@localizer["activeslider"] @is_active_slider_input
-    </label>
-</div>
-
-<div class="card-deck">
-
-    @for (int i = 0; i < configmgr.configData.num_motor; i++)
-    {
-        int local_val = i;
-        <AnimatorMoveToWidget motor_index=local_val @bind-movetopos=@unit_positions[local_val] currentpos=@apidata.motor_list[local_val].position @bind-is_enable_slider="is_active_slider_input"></AnimatorMoveToWidget>
-    }
-
+<div class="toast-group">
+    <div class="toast fade bg-primary border-0 text-white @toast_shower" id="toast1" role="alert">
+        <button type="button" class="ml-2 mb-1 close" aria-label="Close" @onclick="() => { is_toast_active = false;}">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <div class="toast-body">
+            @localizer["keyframe_changed"]
+        </div>
+    </div>
 </div>
 
 
@@ -177,6 +243,23 @@
     float wait_time = 4.5f;
 
     bool is_active_slider_input = false;
+
+    bool _is_toast_active = false;
+    const int toast_time = 2000;//ms
+
+    bool is_toast_active{
+        get{ return _is_toast_active; }
+        set{ _is_toast_active = value;
+            if (value)
+                Task.Delay(toast_time).ContinueWith(t => { _is_toast_active = false; InvokeAsync(StateHasChanged); }) ;
+        }
+    }
+    string toast_shower
+    {
+        get { return _is_toast_active ? "show" : ""; }
+    }
+
+    string sendto_value { get; set; } = "-1";
 
 
     void OnKeyFrameChange(ChangeEventArgs e)
@@ -237,21 +320,27 @@
 
     void OnClickSetKeyFrame()
     {
-        if (kfmgr.keyframes.Count <= current_keyframe)
+        if (kfmgr.keyframes.Count() <= current_keyframe)
         {
-            kfmgr.keyframes.Add(new Keyframe());
+            //Add new Keyframes
+            for (int i = kfmgr.keyframes.Count(); i <= current_keyframe; i++)
+            {
+                kfmgr.keyframes.Add(new Keyframe(configmgr.configData.num_motor));
+            }
         }
+
         kfmgr.keyframes[current_keyframe].action = (Keyframe.Action)current_action;
 
         kfmgr.keyframes[current_keyframe].index = current_keyframe;
         kfmgr.keyframes[current_keyframe].move_speed = feedrate;
 
         kfmgr.keyframes[current_keyframe].wait_time = wait_time;
-        kfmgr.keyframes[current_keyframe].ArrayCopy(unit_positions);
+        kfmgr.keyframes[current_keyframe].PosArrayCopy(unit_positions);
 
         current_keyframe++;
 
         SyncDatasFromKeyFrame();
+        is_toast_active = true;
     }
 
     void OnClickMakeNC()
@@ -278,11 +367,22 @@
 
     async void OnClickSendNC()
     {
-        MessageBoxOptions messageBoxOptions = new MessageBoxOptions(localizer["nc_run_message"])
+        int send_target_val;
+        try
+        {
+            send_target_val = int.Parse(sendto_value);
+        }
+        catch (Exception e)
+        {
+            logger.WriteLogln($"Invalid Send File Target: {e.Message}");
+            return;
+        }
+
+        MessageBoxOptions messageBoxOptions = new MessageBoxOptions(localizer["nc_run_message"] + $"\nTo:{((send_target_val < 0) ? "NormalMotionFile" : $"Trigger{ send_target_val }")}")
         {
             Type = MessageBoxType.info,
             Title = "Run NC File",
-            Buttons = new string[]{ "OK", "Cancel" },
+            Buttons = new string[] { "OK", "Cancel" },
 
         };
 
@@ -291,6 +391,17 @@
         if (res.Response == 1)//Cancel
             return;
 
+        OnClickMakeNC();
+
+        string save_filename_on_board;
+        if (int.Parse(sendto_value) < 0)
+        {
+            save_filename_on_board = configmgr.configData.save_path_on_board;
+        }
+        else
+        {
+            save_filename_on_board = configmgr.configData.save_path_sys_on_board + $"trigger{send_target_val}.g";
+        }
 
         for (int i = 0; i < configmgr.configData.num_board_group; i++)
         {
@@ -304,7 +415,7 @@
                     ParentBoard parentBoard = apidata.GetBoardFromIndex(i);
 
 
-                    bool result = await parentBoard.webAPI.SendFile(sr, configmgr.configData.save_path_on_board);
+                    bool result = await parentBoard.webAPI.SendFile(sr, save_filename_on_board);
                 }
 
             }
@@ -367,13 +478,13 @@
         var saveOptions = new SaveDialogOptions
         {
             Title = "Save motion datas",
-            DefaultPath = await Electron.App.GetAppPathAsync(),
+            DefaultPath = await Electron.App.GetLocaleAsync(),
             Filters = new FileFilter[]
             {
                 new FileFilter{ Name = "CSV",Extensions= new string[]{"csv"} },
                 new FileFilter{ Name = "XML",Extensions= new string[]{"xml"} }
 
-                }
+                            }
         };
         string sa_path = await Electron.Dialog.ShowSaveDialogAsync(Electron.WindowManager.BrowserWindows.First(), saveOptions);
 
@@ -407,22 +518,21 @@
         var openOptions = new OpenDialogOptions
         {
             Title = "open motion datas",
-            DefaultPath = await Electron.App.GetAppPathAsync(),
+            DefaultPath = await Electron.App.GetLocaleAsync(),
             Filters = new FileFilter[]
             {
                 new FileFilter{ Name = "CSV",Extensions= new string[]{"csv"} },
                 new FileFilter{ Name = "XML",Extensions= new string[]{"xml"} }
 
-                },
+                            },
 
         };
         string[] f_path = await Electron.Dialog.ShowOpenDialogAsync(Electron.WindowManager.BrowserWindows.First(), openOptions);
 
-        logger.WriteLogln($"{f_path.First()}");
-
-
         if (f_path.Length == 0)
             return;
+
+        logger.WriteLogln($"{f_path.First()}");
 
         string ext = Path.GetExtension(f_path.First());
 
@@ -448,7 +558,43 @@
         StateHasChanged();
     }
 
+    async void OnClickInsertKeyFrame()
+    {
+        if (kfmgr.keyframes.Count <= current_keyframe)
+        {
+            kfmgr.keyframes.Add(new Keyframe(configmgr.configData.num_motor));
+        }
 
+        Keyframe new_keyframe = new Keyframe();
+
+        new_keyframe.action = (Keyframe.Action)current_action;
+
+        new_keyframe.index = ++current_keyframe;
+        new_keyframe.move_speed = feedrate;
+
+        new_keyframe.wait_time = wait_time;
+        new_keyframe.PosArrayCopy(unit_positions);
+
+        kfmgr.keyframes.Where(x => (x.index >= current_keyframe)).ToList().ForEach(x => x.index++);
+
+        kfmgr.keyframes.Insert(current_keyframe, new_keyframe);
+
+        SyncDatasFromKeyFrame();
+        is_toast_active = true;
+    }
+
+    async void OnClickDeleteKeyFrame()
+    {
+        if (current_keyframe >= kfmgr.keyframes.Count())
+            return;
+
+        kfmgr.keyframes.RemoveAt(current_keyframe);
+
+
+        kfmgr.keyframes.Where(x => (x.index >= current_keyframe)).ToList().ForEach(x => x.index--);
+
+        SyncDatasFromKeyFrame();
+    }
 
 }
 

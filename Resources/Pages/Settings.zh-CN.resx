@@ -127,4 +127,10 @@
   <data name="saveconfig" xml:space="preserve">
     <value>保存配置</value>
   </data>
+  <data name="icon" xml:space="preserve">
+    <value>图标</value>
+  </data>
+  <data name="loadconfig" xml:space="preserve">
+    <value>加载配置文件</value>
+  </data>
 </root>

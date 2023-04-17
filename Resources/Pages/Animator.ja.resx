@@ -134,7 +134,7 @@
     <value>テスト移動</value>
   </data>
   <data name="makenc" xml:space="preserve">
-    <value>モーションデータ生成</value>
+    <value>モーションデータ保存</value>
   </data>
   <data name="sendnc" xml:space="preserve">
     <value>モーションデータ送信</value>
@@ -161,12 +161,39 @@
     <value>None</value>
   </data>
   <data name="keyframeaction" xml:space="preserve">
-    <value>キーフレームにおける動作</value>
+    <value>キーフレーム操作</value>
   </data>
   <data name="activeslider" xml:space="preserve">
     <value>スライダー有効化</value>
   </data>
   <data name="nc_run_message" xml:space="preserve">
     <value>NCファイルを送信して実行します</value>
+  </data>
+  <data name="datacontrol" xml:space="preserve">
+    <value>データ操作</value>
+  </data>
+  <data name="sendto" xml:space="preserve">
+    <value>送信先</value>
+  </data>
+  <data name="motoradjust" xml:space="preserve">
+    <value>モーター位置調整</value>
+  </data>
+  <data name="motor" xml:space="preserve">
+    <value>モーター</value>
+  </data>
+  <data name="currentpos" xml:space="preserve">
+    <value>現在位置</value>
+  </data>
+  <data name="current_key_pos" xml:space="preserve">
+    <value>現在のキーフレームにおける位置</value>
+  </data>
+  <data name="keyframe_changed" xml:space="preserve">
+    <value>キーフレームが変更されました。</value>
+  </data>
+  <data name="insertkey" xml:space="preserve">
+    <value>キーフレーム前に挿入</value>
+  </data>
+  <data name="deletekey" xml:space="preserve">
+    <value>現在のキーフレームを削除</value>
   </data>
 </root>

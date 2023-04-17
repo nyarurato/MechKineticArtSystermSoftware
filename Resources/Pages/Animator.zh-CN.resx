@@ -181,12 +181,39 @@
     <value>无</value>
   </data>
   <data name="keyframeaction" xml:space="preserve">
-    <value>关键帧操作（KeyFrameAction</value>
+    <value>关键帧操作</value>
   </data>
   <data name="activeslider" xml:space="preserve">
     <value>滑块输入激活</value>
   </data>
   <data name="nc_run_message" xml:space="preserve">
     <value>传输和执行NC文件</value>
+  </data>
+  <data name="datacontrol" xml:space="preserve">
+    <value>数据控制</value>
+  </data>
+  <data name="sendto" xml:space="preserve">
+    <value>目的地</value>
+  </data>
+  <data name="motoradjust" xml:space="preserve">
+    <value>电机位置调整</value>
+  </data>
+  <data name="motor" xml:space="preserve">
+    <value>电机</value>
+  </data>
+  <data name="currentpos" xml:space="preserve">
+    <value>当前位置</value>
+  </data>
+  <data name="current_key_pos" xml:space="preserve">
+    <value>在此关键帧中的位置</value>
+  </data>
+  <data name="insertkey" xml:space="preserve">
+    <value>插入这个关键帧</value>
+  </data>
+  <data name="keyframe_changed" xml:space="preserve">
+    <value>关键帧被改变了。</value>
+  </data>
+  <data name="deletekey" xml:space="preserve">
+    <value>删除这个关键帧</value>
   </data>
 </root>

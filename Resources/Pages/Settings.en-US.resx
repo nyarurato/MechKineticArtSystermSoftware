@@ -127,4 +127,10 @@
   <data name="saveconfig" xml:space="preserve">
     <value>Save Config</value>
   </data>
+  <data name="icon" xml:space="preserve">
+    <value>Icon</value>
+  </data>
+  <data name="loadconfig" xml:space="preserve">
+    <value>Load Config File</value>
+  </data>
 </root>

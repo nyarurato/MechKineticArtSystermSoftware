@@ -546,6 +546,8 @@ namespace MechKineticsArtSoftware
         /// DuetStatusをJsonから生成
         /// </summary>
         /// <param name="jobj">StatusのJson</param>
+
+
         DuetStatus GetStatusOBjFromJobj(JObject jobj)
         {
             DuetStatus duetStatus = new DuetStatus();
@@ -554,9 +556,8 @@ namespace MechKineticsArtSoftware
             if (jobj == null)//何もなかった場合初期値のDuetStatusを返す
                 return duetStatus;
 
-            /*
-             * move 
-             */
+
+            //move
 
             var xobj = jobj["move"]["axes"].Where(axis => (axis["letter"].ToString() == "X")).First();
 
@@ -575,11 +576,11 @@ namespace MechKineticsArtSoftware
             duetStatus.user_position.Z = zobj["userPosition"].Value<float>();
 
 
-            /*
-             * Job 
-             */
+            //Job
+
+
             if (jobj["job"]["duration"].Type == JTokenType.Null)
-            {//中身がNullの場合
+            {//Null
                 duetStatus.job_duration = 0;
             }
             else
@@ -588,7 +589,7 @@ namespace MechKineticsArtSoftware
             }
 
             if (jobj["job"]["file"]["fileName"].Type == JTokenType.Null)
-            {//中身がNullの場合
+            {//Null
                 duetStatus.job_filename = string.Empty;
             }
             else
@@ -597,11 +598,12 @@ namespace MechKineticsArtSoftware
             }
 
 
-            /*
-             * network
-             */
+
+            //network
+
+
             if (jobj["network"]["hostname"].Type == JTokenType.Null)
-            {//中身がNullの場合
+            {//Null
                 duetStatus.hostname = string.Empty;
             }
             else
@@ -614,11 +616,12 @@ namespace MechKineticsArtSoftware
 
             duetStatus.macaddress = interface_obj["mac"].ToString();
 
-            /*
-             * state
-             */
+
+            //state
+
+
             if (jobj["state"]["time"].Type == JTokenType.Null)
-            {//中身がNullの場合
+            {//Null
                 duetStatus.data_time = DateTime.MinValue;
             }
             else
@@ -632,33 +635,14 @@ namespace MechKineticsArtSoftware
                 Enum.TryParse(s, out duetStatus.status);
             }
 
-            /*
-             * sensor
-             */
-            var s_array = (JArray)jobj["sensors"]["analog"];
-            if (s_array.Count > 0)
-            {//アナログ出力センサー定義済みの場合
-                duetStatus.sensor_lastReading = ((JObject)s_array[0])["lastReading"].Value<float>();
-            }
 
-            s_array = (JArray)jobj["sensors"]["endstops"];
-            duetStatus.switches_triggered.Clear();
-            for (int i = 0; i < s_array.Count; i++)
-            {
-                duetStatus.switches_triggered.Add(s_array[i]["triggered"].Value<bool>());
-            }
 
-            s_array = (JArray)jobj["sensors"]["probes"];
-            for (int i = 0; i < s_array.Count; i++)
-            {
-                duetStatus.probe_LastStopHeight.Add(s_array[i]["lastStopHeight"].Value<float>());
-            }
 
-            /*
-             * directories
-             */
+            //directories
+
+
             if (jobj["directories"]["gCodes"].Type == JTokenType.Null)
-            {//中身がNullの場合
+            {//Null
                 duetStatus.directory_gcode = string.Empty;
             }
             else
@@ -667,7 +651,7 @@ namespace MechKineticsArtSoftware
             }
 
             if (jobj["directories"]["system"].Type == JTokenType.Null)
-            {//中身がNullの場合
+            {//Null
                 duetStatus.directory_gcode = string.Empty;
             }
             else
@@ -678,6 +662,8 @@ namespace MechKineticsArtSoftware
             logwriter.WriteLogln(duetStatus.ToString());
             return duetStatus;
         }
+
+
 
     }
 }

@@ -1,46 +1,38 @@
 @using MechKineticsArtSoftware
 @inject LogWriter logger
 @inject WebAPIManage apidata
+@inject ConfigManager configmgr
 @inject IStringLocalizer<JogWidget> localizer
 @implements IAsyncDisposable
 
 
-<div class="card">
-    <h5 class="card-header">@localizer["motor"] @motor_index</h5>
-    <div class="card-body">
-        <div class="row">
-            <h6 class="card-subtitle m-1">@localizer["jog"]</h6>
-        </div>
-        <div class="row">
-            <div class="input-group m-1">
-                <div class="col">
-                    <button class="btn btn-primary" type="button" @onclick="JogPlus">+Move</button>
-                </div>
-                <div class="col">
-                    <input type="number" name="jog_move_unit_@motor_index" class="form-control" placeholder="move unit" @bind="jog_unit" />
-                </div>
-                <div class="col">
-                    <button class="btn btn-primary" type="button" @onclick="JogMinus">-Move</button>
+<div class="m-1">
+    <h5 class="mt-2 mb-1">
+        @localizer["motor"] @motor_index
+        <i class="oi ml-2 @icon_class"></i>
+    </h5>
+    <div class="d-inline-flex">
+            
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <button class="btn btn-primary" type="button" @onclick="JogPlus">+@localizer["move"]</button>
+            </div>
+            <input type="number" name="jog_move_unit_@motor_index" class="form-control text-center jog-move-unit" placeholder="move unit" @bind="jog_unit" />
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" @onclick="JogMinus">-@localizer["move"]</button>
 
-                </div>
             </div>
         </div>
-        <div class="row">
-            <h6 class="card-subtitle m-1">@localizer["moveto"]</h6>
-        </div>
-        <div class="row">
-            <div class="input-group m-1">
-                <div class="col">
-                    <input type="number" class="form-control" placeholder="MoveToPosition" @bind="moveto">
-                </div>
-                <div class="col">
-                    <button class="btn btn-success" type="button" @onclick="ClickMoveTo">@localizer["move"]</button>
-                </div>
+            
+        <div class="input-group">
+            <span class="d-flex align-items-center mx-1 ml-3">@localizer["targetpos"]:</span>
+            <input type="number" class="form-control col-6 jog-move-unit" placeholder="MoveToPosition" @bind="moveto">
+            <div class="input-group-append">
+                <button class="btn btn-success" type="button" @onclick="ClickMoveTo">@localizer["move"]</button>
             </div>
         </div>
-    </div>
-    <div class="card-footer">
-        @localizer["currentpos"]: @current_pos
+        
+
     </div>
 </div>
 
@@ -54,6 +46,7 @@
 
     private System.Threading.Timer timer;
 
+    string icon_class = string.Empty;
 
     async void ClickMoveTo()
     {
@@ -82,12 +75,18 @@
             {
                 await InvokeAsync(StateHasChanged);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.WriteLogln($"Update event miss:{e.Message}");
             }
 
         }, new System.Threading.AutoResetEvent(false), 0, 500); // fire every 500 milliseconds
+
+        if (configmgr.configData.motor_icons.ContainsKey(motor_index.ToString()))//icon-class set
+            icon_class = configmgr.configData.motor_icons[motor_index.ToString()];
+
+
+        jog_unit = configmgr.configData.default_jog_move_unit;
 
         await base.OnInitializedAsync();
     }

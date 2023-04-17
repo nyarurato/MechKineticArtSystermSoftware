@@ -49,7 +49,7 @@ namespace MechKineticsArtSoftware
 
                     urls[i] = configData.boards_info[i].ip_address;
                     RepRapWebAPI webAPI = new RepRapWebAPI(logger);
-                    var _ = webAPI.Initialize(urls[i]);
+                    var initialize_result = webAPI.Initialize(urls[i]);
                     api_list[i] = webAPI;
 
                     //set board info
@@ -78,6 +78,8 @@ namespace MechKineticsArtSoftware
                 }catch(Exception e)
                 {
                     logwriter.WriteLogln(e.Message);
+                    logwriter.WriteLogln("Stop Update Process for Position Information");
+                    update_timer.Stop();
                 }
             }
 

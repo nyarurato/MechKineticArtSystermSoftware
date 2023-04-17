@@ -30,7 +30,12 @@ namespace MechKineticsArtSoftware
         {
         }
 
-        public void ArrayCopy(float[] data)
+        public Keyframe(int motor_count)
+        {
+            unit_motion = new float[motor_count];
+        }
+
+        public void PosArrayCopy(float[] data)
         {
             if(unit_motion == null)
             {

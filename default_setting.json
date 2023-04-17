@@ -1,4 +1,5 @@
 {
+  "kas_version": "0.16",
   "num_board_group": 1,
   "boards_info": [
     {
@@ -36,5 +37,21 @@
   "min_move_range": 0,
   "max_move_range": 300,
   "num_trigger": 5,
-  "trigger_start_index": 2
+  "trigger_start_index": 2,
+  "motor_icons": {
+    "0": "",
+    "1": "",
+    "2": "",
+    "3": "",
+    "4": "",
+    "5": "",
+    "6": "",
+    "7": "",
+    "8": "",
+    "9": "",
+    "10": "",
+    "11": ""
+  },
+  "max_child_extension_board": 3,
+  "default_jog_move_unit": 10.0
 }

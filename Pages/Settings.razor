@@ -2,99 +2,172 @@
 @using MechKineticsArtSoftware.Data
 @using ElectronNET.API;
 @using ElectronNET.API.Entities;
+@using System.IO;
+@using System.Text.RegularExpressions;
+@using System.Linq;
 @inject ConfigManager configmgr
 @inject IStringLocalizer<Settings> localizer
+@inject LogWriter logger
+@inject WebAPIManage apidata
+
 
 <h1>@localizer["title"]</h1>
 
 <div>
     <div class="input-group-prepend">
-        <span class="input-group-text">@localizer["numgroup"]</span>
-        <input type="text" value="@tmp_config.num_board_group" @onchange="OnChangeBoardNum" class="form-control" />
+        <span class="input-group-text">@localizer["numgroup"] (invalid v0.16)</span>
+        <input type="number" value="@tmp_config.num_board_group" min="0" @onchange="OnChangeBoardNum" class="form-control" readonly/>
+        @* Temp readonly *@
     </div>
 
     @for (int i = 0; i < tmp_config.boards_info.Count; i++)
     {
+        int b_index = i;
         <div class="input-group-prepend">
             <span class="input-group-text">@localizer["ipaddress"] @i</span>
-            <input type="text" @bind="@tmp_config.boards_info[i].ip_address" class="form-control" />
+            <input type="text"
+                   pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+                   placeholder="xxx.xxx.xxx.xxx"
+                   value="@tmp_config.boards_info[i].ip_address"
+                   @onchange="e => OnChangeIPAddress(e,b_index)"
+                   class="form-control" />
         </div>
     }
 
     <div class="input-group-prepend">
         <span class="input-group-text">@localizer["nummotor"]</span>
-        <input type="text" value="@tmp_config.num_motor" @onchange="OnChangeMotorNum" class="form-control"/>
+        <input type="number" value="@tmp_config.num_motor" min="0" @onchange="OnChangeMotorNum" class="form-control" />
     </div>
 
     <h4>@localizer["motorassign"]</h4>
     @for (int i = 0; i < tmp_config.num_motor; i++)
     {
+        int motor_i = i;
         <div class="input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text">@localizer["motor"] @i</span>
             </div>
-            <div class="input-group-prepend">
-                <span class="input-group-text">@localizer["boardgroup"]</span>
-            </div>
-            <select name="Board Group Index" class="form-control">
-                @for (int j = 0; j < tmp_config.num_board_group; j++)
-                {
-                    <option value="@j">MainBoard @j</option>
-                }
-            </select>
+            @if (tmp_config.num_board_group > 1)
+            {
+                <div class="input-group-prepend">
+                    <span class="input-group-text">@localizer["boardgroup"]</span>
+                </div>
+                <select name="Board Group Index" class="form-control" value="@motor_assign_data[motor_i].board_i"
+                        @onchange="e => { motor_assign_data[motor_i] = (int.Parse(e.Value.ToString()),
+                                                                 motor_assign_data[motor_i].child_board_i,
+                                                                 motor_assign_data[motor_i].axis_name_i); }">
+
+                    @for (int j = 0; j < tmp_config.num_board_group; j++)
+                    {
+                        <option value="@j">MainBoard @j</option>
+                    }
+                </select>
+            }
             <div class="input-group-prepend">
                 <span class="input-group-text">@localizer["boardindex"]</span>
             </div>
-            <select name="Board Index" class="form-control">
+            <select name="Board Index" class="form-control" value="@motor_assign_data[motor_i].child_board_i"
+                    @onchange="e => { motor_assign_data[motor_i] = (motor_assign_data[motor_i].board_i,
+                                                                 int.Parse(e.Value.ToString()),
+                                                                 motor_assign_data[motor_i].axis_name_i); }">
                 <option value="0">MainBoard</option>
-                <option value="1">ExtendBoard 1</option>
-                <option value="2">ExtendBoard 2</option>
-                <option value="3">ExtendBoard 3</option>
-                <option value="4">ExtendBoard 4</option>
-                <option value="5">ExtendBoard 5</option>
+                @for (int j = 0; j < configmgr.configData.max_child_extension_board; j++)
+                {
+                    <option value="@(j+1)">ExtendBoard @j</option>
+                }
             </select>
             <div class="input-group-prepend">
                 <span class="input-group-text">@localizer["axisname"]</span>
             </div>
-            <select name="Axis Name" class="form-control">
-                <option value="0">X</option>
-                <option value="1">Y</option>
-                <option value="2">Z</option>
-                <option value="3">A</option>
-                <option value="4">B</option>
-                <option value="5">C</option>
-                <option value="6">U</option>
-                <option value="7">V</option>
-                <option value="8">W</option>
-                <option value="9">E0</option>
-                <option value="10">E1</option>
-                <option value="11">E2</option>
-                <option value="12">E3</option>
-                <option value="13">E4</option>
-                <option value="14">E5</option>
-                <option value="15">E6</option>
-                <option value="16">E7</option>
-                <option value="17">E8</option>
-                <option value="18">E9</option>
+            <select name="Axis Name" class="form-control" value="@motor_assign_data[motor_i].axis_name_i"
+                    @onchange="e => { motor_assign_data[motor_i] = (motor_assign_data[motor_i].board_i,
+                                                                 motor_assign_data[motor_i].child_board_i,
+                                                                 int.Parse(e.Value.ToString())); }">
+                @for (int j = 0; j < axis_name_array.Length; j++)
+                {
+                    <option value="@j">@axis_name_array[j]</option>
+
+                }
             </select>
-            
+
+            <div class="input-group-prepend">
+                <span class="input-group-text">@localizer["icon"]</span>
+            </div>
+            <IconSelectorMenu motor_index="@i"></IconSelectorMenu>
         </div>
-        }
+    }
 
-    <button @onclick="SaveConf" class="form-control">@localizer["saveconfig"]</button>
-
+    <div class="input-group my-3">
+        <button @onclick="SaveConf" class="form-control btn btn-primary">@localizer["saveconfig"]</button>
+        <button @onclick="LoadConfFile" class="form-control btn btn-secondary">@localizer["loadconfig"]</button>
     </div>
 
-@code {
+</div>
 
+@code {
     ConfigData tmp_config;
 
-    void SaveConf()
+    readonly string[] axis_name_array =
+        {
+        "X",    "Y",    "Z",
+        "A",    "B",    "C",
+        "U",    "V",    "W",
+        "E0",   "E1",   "E2",
+        "E3",   "E4",   "E5",
+        "E6",   "E7",   "E8"
+        };
+
+    Dictionary<int, (int board_i, int child_board_i, int axis_name_i)> motor_assign_data;
+
+    async void SaveConf()
     {
+
+        var saveOptions = new SaveDialogOptions
+        {
+            Title = "Save KAS config",
+            DefaultPath = await Electron.App.GetLocaleAsync(),
+            Filters = new FileFilter[]
+            {
+                new FileFilter{ Name = "Json",Extensions= new string[]{"json"} }
+
+                                }
+        };
+        string sa_path = await Electron.Dialog.ShowSaveDialogAsync(Electron.WindowManager.BrowserWindows.First(), saveOptions);
+
+        if (sa_path == "")
+            return;
+
+        SetMotorAssignInfoToConfigMgr();
+
         //configmgr.configData = tmp_config;
-        configmgr.SaveSetting(tmp_config);
+        configmgr.SaveSetting(tmp_config, sa_path);
 
         //TODO: Reload ALL Object
+    }
+
+    async void LoadConfFile()
+    {
+
+        var openOptions = new OpenDialogOptions
+        {
+            Title = "Open KAS Config File",
+            DefaultPath = await Electron.App.GetLocaleAsync(),
+            Filters = new FileFilter[]
+            {
+                new FileFilter{ Name = "Json",Extensions= new string[]{"json"} },
+
+                                },
+
+        };
+        string[] f_path = await Electron.Dialog.ShowOpenDialogAsync(Electron.WindowManager.BrowserWindows.First(), openOptions);
+
+        if (f_path.Length == 0)
+            return;
+
+        logger.WriteLogln($"{f_path.First()}");
+        tmp_config = configmgr.LoadSetting(f_path.First());
+
+        StateHasChanged();
     }
 
     void OnChangeBoardNum(ChangeEventArgs e)
@@ -103,17 +176,27 @@
 
         if (tmp_config.num_board_group < tmp_config.boards_info.Count)
         {
-            tmp_config.boards_info.RemoveRange(tmp_config.num_board_group - 1, tmp_config.boards_info.Count - tmp_config.num_board_group );
+            tmp_config.boards_info.RemoveRange(tmp_config.num_board_group - 1, tmp_config.boards_info.Count - tmp_config.num_board_group);
         }
 
         if (tmp_config.num_board_group > tmp_config.boards_info.Count)
         {
             int n = tmp_config.num_board_group - tmp_config.boards_info.Count;
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++)
+            {
                 BoardInfo boardinfo = new BoardInfo();
                 boardinfo.ip_address = string.Empty;
                 boardinfo.board_group_index = i;
                 tmp_config.boards_info.Add(boardinfo);
+            }
+
+            //TODO
+            for(int i = 0; i < tmp_config.num_board_group; i++)
+            {
+                if (i < apidata.api_list.Length)
+                {
+                    continue;//TODO: make API datas
+                }
             }
         }
 
@@ -122,14 +205,51 @@
 
     void OnChangeMotorNum(ChangeEventArgs e)
     {
-        tmp_config.num_motor = int.Parse(e.Value.ToString());
+        int previous_num_motor = tmp_config.num_motor;
+        tmp_config.num_motor = int.Parse(e.Value.ToString());//Update Motor Num
 
+        //Update Motor Assign Data
+        if (tmp_config.num_motor > previous_num_motor)
+        {
+            for (int i = previous_num_motor; i < tmp_config.num_motor; i++)
+            {
+                if (!motor_assign_data.ContainsKey(i))
+                    motor_assign_data.Add(i, (0, 0, 0));//Add New assign data
+
+            }
+        }
         StateHasChanged();
+
     }
+
     protected override async Task OnInitializedAsync()
     {
-        tmp_config = configmgr.GetClonedConfigData();
+        tmp_config = configmgr.configData;//.Clone() as ConfigData;
+        motor_assign_data = tmp_config.GetMotorAssign();
+
         await base.OnInitializedAsync();
 
     }
+
+    void OnChangeIPAddress(ChangeEventArgs e, int board_index)
+    {
+        //Only for IP address
+        if (Regex.IsMatch(e.Value.ToString(), @"[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}"))
+        {
+            tmp_config.boards_info[board_index].ip_address = e.Value.ToString();
+        }
+        else
+        {
+            Electron.Dialog.ShowErrorBox("Invalid IP Address", $"Invalid IP Address\nBoard {board_index}");
+        }
+    }
+
+    void SetMotorAssignInfoToConfigMgr()
+    {
+        for (int i = 0; i < configmgr.configData.num_motor; i++)
+        {
+            tmp_config.motor_assign[i.ToString()] = $"{motor_assign_data[i].board_i}.{motor_assign_data[i].child_board_i}.{motor_assign_data[i].axis_name_i}";
+        }
+    }
+
 }

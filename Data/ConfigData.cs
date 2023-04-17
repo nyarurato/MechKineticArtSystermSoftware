@@ -20,6 +20,7 @@ namespace MechKineticsArtSoftware.Data
 
     public class ConfigData
     {
+        public string kas_version { get; set; }
         public int num_board_group { get; set; }
         public List<BoardInfo> boards_info { get; set; }
 
@@ -51,9 +52,13 @@ namespace MechKineticsArtSoftware.Data
 
         public int trigger_start_index { get; set; }
 
+        public Dictionary<string, string> motor_icons { get; set; }
 
+        public int max_child_extension_board { get; set; }
 
-        public Dictionary<int,(int,int,int)> GetMotorAssign()
+        public float default_jog_move_unit { get; set; }
+
+        public Dictionary<int,(int board_i,int child_board_i,int axis_name_i)> GetMotorAssign()
         {
             Dictionary<int, (int, int, int)> assign_dic = new Dictionary<int, (int, int, int)>();
 
@@ -75,6 +80,12 @@ namespace MechKineticsArtSoftware.Data
         {
             boards_info = new List<BoardInfo>();
             motor_assign = new Dictionary<string, string>();
+            motor_icons = new Dictionary<string, string>();
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
 
     }

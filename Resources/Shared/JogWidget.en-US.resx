@@ -132,4 +132,7 @@
   <data name="currentpos" xml:space="preserve">
     <value>Current Position</value>
   </data>
+  <data name="targetpos" xml:space="preserve">
+    <value>Target</value>
+  </data>
 </root>

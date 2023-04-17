@@ -11,7 +11,7 @@
     "appId": "com.MechKineticsArtSoftware.app",
     "productName": "MechKineticsArtSoftware",
     "copyright": "Copyright © 2022 Nyaru",
-    "buildVersion": "1.0.0",
+    "buildVersion": "0.16.0",
     "compression": "maximum",
     "directories": {
       "output": "../../../bin/Desktop"
@@ -33,7 +33,7 @@
     ],
 
     "win": {
-      "target": "dir",
+      "target": "zip",
       "icon": "../../../Assets/icon.png"
     },
     "linux": {

@@ -5,31 +5,25 @@
 @inject IStringLocalizer<AnimatorMoveToWidget> localizer
 @implements IAsyncDisposable
 
-<div class="card mb-4">
-    <h6 class="card-header">@localizer["motor"] @motor_index</h6>
-    <div class="card-body">
-        <div class="row">
-            <div class="input-group m-1">
-                <div class="col">
-                    <p>@localizer["position"]</p>
-                </div>
-                <div class="col">
-                    @if (is_enable_slider)
-                    {
-                        <input type="range" class="form-control" placeholder="MoveToPosition" @bind="movetopos" max="@configmgr.configData.max_move_range" min="@configmgr.configData.min_move_range">
-                        <span>@movetopos</span>
-                    }
-                    else
-                    {
-                        <input type="number" class="form-control" placeholder="MoveToPosition" @bind="movetopos">
-
-                    }
-                </div>
-            </div>
+<div class="">
+    <div class="row">
+        <div class="col-4 d-flex align-items-center">
+            @localizer["motor"] @motor_index
+            <i class="oi ml-2 @icon_class"></i>
         </div>
-    </div>
-    <div class="card-footer">
-        <p class="card-text">@localizer["currentpos"] : @currentpos</p>
+        <div class="input-group m-1 col-5">
+            
+                @if (is_enable_slider)
+                {
+                <input type="range" class="form-control movewidget-range" placeholder="MoveToPosition" @bind="movetopos" max="@configmgr.configData.max_move_range" min="@configmgr.configData.min_move_range">
+                <span>@movetopos</span>
+                }
+                else
+                {
+                <input type="number" class="form-control" placeholder="MoveToPosition" @bind="movetopos">
+
+                }
+         </div>
     </div>
 </div>
 
@@ -47,6 +41,8 @@
 
 
     float _currentpos = 0;
+
+    string icon_class = string.Empty;
 
     [Parameter]
     public float currentpos
@@ -115,6 +111,10 @@
             }
 
         }, new System.Threading.AutoResetEvent(false), 0, configmgr.configData.position_update_interval/2);// fire half of update time
+
+        if (configmgr.configData.motor_icons.ContainsKey(motor_index.ToString()))//icon-class set
+            icon_class = configmgr.configData.motor_icons[motor_index.ToString()];
+
 
         await base.OnInitializedAsync();
 

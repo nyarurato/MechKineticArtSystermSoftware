@@ -25,12 +25,19 @@ namespace MechKineticsArtSoftware
         {
             return JsonSerializer.Deserialize<ConfigData>(JsonSerializer.Serialize(configData));
         }
+        public ConfigData LoadSetting(string file_path = "./default_setting.json")
+        {
+            using (StreamReader sr = new StreamReader(file_path))
+            {
+                return JsonSerializer.Deserialize<ConfigData>(sr.ReadToEnd());
+            }
+        }
+
         void LoadDefaultSetting(string default_setting_fname = "./default_setting.json")
         {
-            using (StreamReader sr = new StreamReader(default_setting_fname))
-            {
-                configData = JsonSerializer.Deserialize<ConfigData>(sr.ReadToEnd());
-            }
+
+            configData = LoadSetting(default_setting_fname);
+            
         }
 
         public void SaveSetting(string file_path="./save_setting.json")
@@ -50,5 +57,6 @@ namespace MechKineticsArtSoftware
                 sw.Flush();
             }
         }
+
     }
 }

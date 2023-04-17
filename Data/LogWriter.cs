@@ -40,7 +40,7 @@ namespace MechKineticsArtSoftware
 
         public void WriteLog(string s)
         {
-            _logtext += s;
+            _logtext += DateTime.Now.ToString("yy/MM/dd HH:mm:ss") + ": " + s;
             Console.Write(s);
             streamWriter.Write(s);
         }

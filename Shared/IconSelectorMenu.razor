@@ -1,0 +1,78 @@
+﻿@using MechKineticsArtSoftware
+@inject ConfigManager configmgr
+
+<div class="btn-group">
+    <button class="btn btn-secondary dropdown-toggle" @onclick="ToggleMenu" aria-expanded="@openedMenu.ToString()"><i class="oi @current_icon selected-icon"></i></button>
+    <div class="dropdown-menu flex-row flex-wrap @MenuCssClass">
+        @foreach (string s in selectable_icon)
+        {
+            <div class="selectable-icon d-flex justify-content-center" @onclick="@(evt => OnclickIcon(s))"><i class="oi @s"></i></div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int motor_index { get; set; }
+
+    string current_icon = String.Empty;
+
+    readonly string[] selectable_icon = {
+        "",
+        "oi-action-redo",
+        "oi-action-undo",
+        "oi-arrow-left",
+        "oi-arrow-right",
+        "oi-arrow-bottom",
+        "oi-arrow-top",
+        "oi-caret-left",
+        "oi-caret-right",
+        "oi-caret-top",
+        "oi-caret-bottom",
+        "oi-elevator",
+        "oi-eject",
+        "oi-data-transfer-download",
+        "oi-data-transfer-upload",
+        "oi-fullscreen-enter",
+        "oi-fullscreen-exit",
+        "oi-random",
+        "oi-reload",
+        "oi-resize-both",
+        "oi-resize-height",
+        "oi-resize-width",
+        "oi-transfer",
+        "oi-star",
+        "oi-x",
+        "oi-ban",
+        "oi-bolt",
+    };
+
+    private bool openedMenu = false;
+
+    private string MenuCssClass => openedMenu ? "show d-flex" : null;
+
+    private void ToggleMenu()
+    {
+        openedMenu = !openedMenu;
+    }
+
+    private void OnclickIcon(string str)
+    {
+        current_icon = str;
+        openedMenu = false;
+        StateHasChanged();
+        if (configmgr.configData.motor_icons.ContainsKey(motor_index.ToString()))
+            configmgr.configData.motor_icons[motor_index.ToString()] = str;
+        else
+            configmgr.configData.motor_icons.Add(motor_index.ToString(), str);
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+
+        if (configmgr.configData.motor_icons.ContainsKey(motor_index.ToString()))
+            current_icon = configmgr.configData.motor_icons[motor_index.ToString()];
+
+        return base.OnInitializedAsync();
+    }
+}

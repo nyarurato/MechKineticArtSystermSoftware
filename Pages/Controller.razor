@@ -2,14 +2,27 @@
 @using MechKineticsArtSoftware
 @inject LogWriter logger
 @inject ConfigManager configmgr
+@inject WebAPIManage apidata
 @inject IStringLocalizer<Controller> localizer
 
 
 <h1>@localizer["title"]</h1>
 
 <div>
+    <h5>Current Position</h5>
+    <div class="current-pos container">
+        <div class="row">
+            @for (int i = 0; i < configmgr.configData.num_motor; i++)
+            {
+                <div class="col">
+                    <div class="pos-display-motor-name">Motor @i</div>
+                    <div class="pos-display-position">@apidata.motor_list[i].position.ToString("f1")</div>
+                </div>
+            }
+        </div>
+    </div>
     <h4>@localizer["control"]</h4>
-    <div class="card-deck">
+    <div class="overflow-auto" id="jogwidgets">
         @for (int i = 0; i < configmgr.configData.num_motor; i++)
         {
             <JogWidget motor_index="@i"></JogWidget>
