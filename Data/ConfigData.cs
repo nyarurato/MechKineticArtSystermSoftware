@@ -20,8 +20,8 @@ namespace MechKineticsArtSoftware.Data
 
     public class ConfigData
     {
-        public string kas_version { get; set; }
-        public int num_board_group { get; set; }
+        public string kas_version { get; set; }//version
+        public int num_board_group { get; set; }//Board Group (Master Board) Count
         public List<BoardInfo> boards_info { get; set; }
 
         public int num_motor { get; set; }

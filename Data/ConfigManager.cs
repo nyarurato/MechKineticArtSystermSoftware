@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using MechKineticsArtSoftware.Data;
 using System.Threading.Tasks;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 namespace MechKineticsArtSoftware
 {
@@ -53,7 +55,16 @@ namespace MechKineticsArtSoftware
         {
             using (StreamWriter sw = new StreamWriter(file_path))
             {
-                sw.Write(JsonSerializer.Serialize(cf));
+                JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
+                {
+                    // null 値プロパティ除外
+                    IgnoreNullValues = true,
+                    // 文字コード
+                    Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+                    //整形出力
+                    WriteIndented = true
+                };
+                sw.Write(JsonSerializer.Serialize(cf,jsonSerializerOptions));
                 sw.Flush();
             }
         }
