@@ -216,4 +216,10 @@
   <data name="deletekey" xml:space="preserve">
     <value>删除这个关键帧</value>
   </data>
+  <data name="nc_send_message" xml:space="preserve">
+    <value>发送 NC 文件</value>
+  </data>
+  <data name="runnc" xml:space="preserve">
+    <value>运行NC文件</value>
+  </data>
 </root>

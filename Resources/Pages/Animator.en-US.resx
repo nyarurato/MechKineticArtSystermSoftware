@@ -196,4 +196,10 @@
   <data name="deletekey" xml:space="preserve">
     <value>Delete This Keyframe</value>
   </data>
+  <data name="nc_send_message" xml:space="preserve">
+    <value>Start Sending NC File</value>
+  </data>
+  <data name="runnc" xml:space="preserve">
+    <value>RunNCFile</value>
+  </data>
 </root>

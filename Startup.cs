@@ -32,8 +32,8 @@ namespace MechKineticsArtSoftware
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<LogWriter>();
             services.AddSingleton<ConfigManager>();
+            services.AddSingleton<LogWriter>();
             services.AddSingleton<KeyFrameManager>();
             services.AddSingleton<WebAPIManage>();
 

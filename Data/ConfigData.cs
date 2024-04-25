@@ -29,9 +29,9 @@ namespace MechKineticsArtSoftware.Data
         public string nc_file_name { get; set; }
 
         public string nc_file_name_ext { get; set; }
+        public string gcode_dir_on_board { get; set; }
 
         public string save_path_on_board { get; set; }
-        public string save_nc_path_on_pc_directory { get; set; }
 
         public string save_path_sys_on_board { get; set; }
 

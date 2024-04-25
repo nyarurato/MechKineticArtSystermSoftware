@@ -16,11 +16,18 @@ namespace MechKineticsArtSoftware
 
         StreamWriter streamWriter;
 
-        string writerpath = "./log.txt";
+        string writerpath = "./";
+        string log_filename = "log.txt";
 
-        public LogWriter()
+        public LogWriter(ConfigManager configManager)
         {
             _logtext = "";
+
+            if (configManager.logDataPath != "")
+                writerpath = configManager.logDataPath;
+
+            writerpath = Path.Combine(configManager.logDataPath, log_filename);
+
             streamWriter = new StreamWriter(writerpath);
             streamWriter.AutoFlush = true;
 
@@ -30,6 +37,7 @@ namespace MechKineticsArtSoftware
 
         ~LogWriter()
         {
+            streamWriter.Flush();
             streamWriter.Close();
         }
 
@@ -43,6 +51,7 @@ namespace MechKineticsArtSoftware
             _logtext += DateTime.Now.ToString("yy/MM/dd HH:mm:ss") + ": " + s;
             Console.Write(s);
             streamWriter.Write(s);
+            _ = streamWriter.FlushAsync();
         }
 
         public void ClearLog()

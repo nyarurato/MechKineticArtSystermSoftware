@@ -10,8 +10,8 @@
   "build": {
     "appId": "com.MechKineticsArtSoftware.app",
     "productName": "MechKineticsArtSoftware",
-    "copyright": "Copyright © 2022 Nyaru",
-    "buildVersion": "0.16.0",
+    "copyright": "Copyright © 2022 NYA Lab",
+    "buildVersion": "0.17.0",
     "compression": "maximum",
     "directories": {
       "output": "../../../bin/Desktop"

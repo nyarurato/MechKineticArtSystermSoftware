@@ -504,7 +504,7 @@ namespace MechKineticsArtSoftware
 
             if (!connected_flag)
             {
-                logwriter.WriteLogln($"{board_url}: No Connection. Can Not Get Pos");
+                //logwriter.WriteLogln($"{board_url}: No Connection. Can Not Get Pos");
                 return pos;
             }
 

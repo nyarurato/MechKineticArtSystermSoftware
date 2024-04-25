@@ -141,10 +141,15 @@
                         </select>
                     </div>
                 </div>
+                
                 <div class="col-3">
                     <button class="btn btn-primary" @onclick="OnClickSendNC">@localizer["sendnc"]</button>
                 </div>
-                
+
+                <div class="col-3">
+                    <button class="btn btn-secondary" @onclick="OnClickRunNC">@localizer["runnc"]</button>
+                </div>
+
             </div>
 
             <div class="row my-2">
@@ -350,10 +355,10 @@
             ParentBoard parentBoard = apidata.GetBoardFromIndex(i);
             KeyFrameCAM keyFrameCAM = new KeyFrameCAM(i, apidata, logger);
 
-            keyFrameCAM.MakeNCFile(configmgr.configData.save_nc_path_on_pc_directory
-                + configmgr.configData.nc_file_name
-                + i.ToString()
-                + configmgr.configData.nc_file_name_ext
+            keyFrameCAM.MakeNCFile(
+                Path.Combine(configmgr.ncDataPath, configmgr.configData.nc_file_name
+                                                  + i.ToString()
+                                                  + configmgr.configData.nc_file_name_ext)
                 , kfmgr.keyframes, configmgr.configData.is_enable_ncfile_loop);
         }
     }
@@ -378,7 +383,7 @@
             return;
         }
 
-        MessageBoxOptions messageBoxOptions = new MessageBoxOptions(localizer["nc_run_message"] + $"\nTo:{((send_target_val < 0) ? "NormalMotionFile" : $"Trigger{ send_target_val }")}")
+        MessageBoxOptions messageBoxOptions = new MessageBoxOptions(localizer["nc_send_message"] + $"\nTo:{((send_target_val < 0) ? "NormalMotionFile" : $"Trigger{ send_target_val }")}")
         {
             Type = MessageBoxType.info,
             Title = "Run NC File",
@@ -400,17 +405,18 @@
         }
         else
         {
-            save_filename_on_board = configmgr.configData.save_path_sys_on_board + $"trigger{send_target_val}.g";
+            save_filename_on_board = configmgr.configData.gcode_dir_on_board + $"trigger{send_target_val}.g";
         }
 
         for (int i = 0; i < configmgr.configData.num_board_group; i++)
         {
             try
             {
-                using (StreamReader sr = new StreamReader(configmgr.configData.save_nc_path_on_pc_directory
-                                                        + configmgr.configData.nc_file_name
+                using (StreamReader sr = new StreamReader(
+                    Path.Combine(configmgr.ncDataPath, configmgr.configData.nc_file_name
                                                         + i.ToString()
-                                                        + configmgr.configData.nc_file_name_ext))
+                                                        + configmgr.configData.nc_file_name_ext)
+                    ))
                 {
                     ParentBoard parentBoard = apidata.GetBoardFromIndex(i);
 
@@ -423,6 +429,51 @@
             {
                 logger.WriteLogln($"Can NOT Send NC File\n{e.Message}");
             }
+        }
+    }
+
+    async void OnClickRunNC()
+    {
+
+        int send_target_val;
+        try
+        {
+            send_target_val = int.Parse(sendto_value);
+        }
+        catch (Exception e)
+        {
+            logger.WriteLogln($"Invalid File Target: {e.Message}");
+            return;
+        }
+
+        MessageBoxOptions messageBoxOptions = new MessageBoxOptions(localizer["nc_run_message"] + $"\nTarget:{((send_target_val < 0) ? "NormalMotionFile" : $"Trigger{ send_target_val }")}")
+        {
+            Type = MessageBoxType.info,
+            Title = "Run NC File",
+            Buttons = new string[] { "OK", "Cancel" },
+
+        };
+
+        MessageBoxResult res = await Electron.Dialog.ShowMessageBoxAsync(messageBoxOptions);
+
+        if (res.Response == 1)//Cancel
+            return;
+
+        string run_path_on_board = "";
+
+        if (int.Parse(sendto_value) < 0)
+        {
+            run_path_on_board = configmgr.configData.save_path_on_board;
+        }
+        else
+        {
+            run_path_on_board = configmgr.configData.gcode_dir_on_board + $"trigger{send_target_val}.g";
+        }
+
+        foreach (var api in apidata.api_list)
+        {
+            await api.RunFile(configmgr.configData.save_path_on_board);
+            logger.WriteLogln($"Run File: {api.url}");
         }
     }
 
@@ -478,7 +529,7 @@
         var saveOptions = new SaveDialogOptions
         {
             Title = "Save motion datas",
-            DefaultPath = await Electron.App.GetLocaleAsync(),
+            DefaultPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             Filters = new FileFilter[]
             {
                 new FileFilter{ Name = "CSV",Extensions= new string[]{"csv"} },
@@ -518,13 +569,13 @@
         var openOptions = new OpenDialogOptions
         {
             Title = "open motion datas",
-            DefaultPath = await Electron.App.GetLocaleAsync(),
+            DefaultPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             Filters = new FileFilter[]
             {
                 new FileFilter{ Name = "CSV",Extensions= new string[]{"csv"} },
                 new FileFilter{ Name = "XML",Extensions= new string[]{"xml"} }
 
-                            },
+            },
 
         };
         string[] f_path = await Electron.Dialog.ShowOpenDialogAsync(Electron.WindowManager.BrowserWindows.First(), openOptions);
@@ -558,7 +609,7 @@
         StateHasChanged();
     }
 
-    async void OnClickInsertKeyFrame()
+    void OnClickInsertKeyFrame()
     {
         if (kfmgr.keyframes.Count <= current_keyframe)
         {
@@ -583,7 +634,7 @@
         is_toast_active = true;
     }
 
-    async void OnClickDeleteKeyFrame()
+    void OnClickDeleteKeyFrame()
     {
         if (current_keyframe >= kfmgr.keyframes.Count())
             return;

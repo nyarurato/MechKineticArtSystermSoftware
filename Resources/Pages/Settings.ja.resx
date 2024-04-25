@@ -133,4 +133,7 @@
   <data name="loadconfig" xml:space="preserve">
     <value>設定ファイル読み込み</value>
   </data>
+  <data name="savedefaultconfig" xml:space="preserve">
+    <value>デフォルト設定として保存</value>
+  </data>
 </root>

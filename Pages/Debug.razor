@@ -8,6 +8,7 @@
 @inject ConfigManager configmgr
 @inject IStringLocalizer<Controller> localizer
 @inject IJSRuntime JSRuntime;
+@inject WebAPIManage apidata
 @implements IAsyncDisposable
 
 <h1>Debug</h1>
@@ -22,11 +23,57 @@
         <h3>BoardInfo</h3>
         @for (int i = 0; i < configmgr.configData.num_board_group; i++)
         {
-        <div>
-            <h5>Board @i</h5>
-
-        </div>
+            <div>
+                <h4>Board Group @i</h4>
+                <div>
+                    <h5>Network</h5>
+                    <div>
+                        <h6>Connection</h6>
+                        <div>@apidata.GetBoardFromIndex(i).webAPI.is_connected</div>
+                    </div>
+                    <div>
+                        <h6>IP address</h6>
+                        <div>@apidata.GetBoardFromIndex(i).webAPI.url</div>
+                    </div>
+                </div>
+            </div>
         }
+    </div>
+
+    <div>
+        <h3>SystemInfo</h3>
+        <div>
+            <h5>OS</h5>
+            <div>@os.Platform</div>
+        </div>
+        <div>
+            <h5>Current Directory</h5>
+            <div>@Environment.CurrentDirectory</div>
+        </div>
+        <div>
+            <h5>AppDatas Directory</h5>
+            <div>@configmgr.userDataPath</div>
+            @if (isWin)
+            {
+                <button class="btn btn-secondary" @onclick="(e => OpenDirectoryOnWindows(configmgr.userDataPath))">Open</button>
+            }
+        </div>
+        <div>
+            <h5>Output NC Directory</h5>
+            <div>@configmgr.ncDataPath</div>
+            @if (isWin)
+            {
+                <button class="btn btn-secondary" @onclick="(e => OpenDirectoryOnWindows(configmgr.ncDataPath))">Open</button>
+            }
+        </div>
+        <div>
+            <h5>Log Directory</h5>
+            <div>@configmgr.logDataPath</div>
+            @if (isWin)
+            {
+                <button class="btn btn-secondary" @onclick="(e => OpenDirectoryOnWindows(configmgr.ncDataPath))">Open</button>
+            }
+        </div>
     </div>
 </div>
 
@@ -34,9 +81,18 @@
     string logtext = "";
     private System.Threading.Timer timer;
     private ElementReference logarea_ref;
+    private OperatingSystem os;
+    bool isWin = false;
+    bool isMac = false;
+    bool isLinux = false;
 
     protected override async Task OnInitializedAsync()
     {
+        os = Environment.OSVersion;
+        isWin = OperatingSystem.IsWindows();
+        isMac = OperatingSystem.IsMacOS();
+        isLinux = OperatingSystem.IsLinux();
+
         // Refresh log text
 
         timer = new System.Threading.Timer(async (object? stateInfo) =>
@@ -65,6 +121,18 @@
     {
 
         await JSRuntime.InvokeVoidAsync("scrollTextareaToBottom", logarea_ref);
-        
+
+    }
+
+    void OpenDirectoryOnWindows(string filepath)
+    {
+        try {
+            System.Diagnostics.Process.Start("explorer.exe", filepath);
+        }
+        catch (Exception e)
+        {
+            logger.WriteLogln(filepath + " : " + e.Message);
+
+        }
     }
 }

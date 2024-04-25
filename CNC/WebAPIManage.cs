@@ -90,7 +90,7 @@ namespace MechKineticsArtSoftware
             motor_axis_dictionary = GetAxisMotorDictionary();
 
             update_timer = new Timer(configData.position_update_interval);
-            update_timer.Elapsed += (sender, e) => { GetPositions(); };
+            update_timer.Elapsed += (sender, e) => { _ = GetPositions(); };
             update_timer.Start();
         }
 

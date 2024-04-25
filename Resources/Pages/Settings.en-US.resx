@@ -133,4 +133,7 @@
   <data name="loadconfig" xml:space="preserve">
     <value>Load Config File</value>
   </data>
+  <data name="savedefaultconfig" xml:space="preserve">
+    <value>Save Config As Default</value>
+  </data>
 </root>

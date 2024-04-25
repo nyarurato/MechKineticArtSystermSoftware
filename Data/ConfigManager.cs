@@ -10,6 +10,8 @@ using MechKineticsArtSoftware.Data;
 using System.Threading.Tasks;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using ElectronNET.API;
+using ElectronNET.API.Entities;
 
 namespace MechKineticsArtSoftware
 {
@@ -17,10 +19,57 @@ namespace MechKineticsArtSoftware
     {
         
         public ConfigData configData { get; set; }
+        public string userDataPath { get; private set; }
+        public string ncDataPath { get; private set; }
+        public string logDataPath { get; private set; }
+        public string user_default_configPath { get; private set; }
+        const string user_defalt_config_filename = "UserDefaultConfig.json";
+
 
         public ConfigManager()
+        {            
+            DirectoryInitialize();
+            
+            //ユーザーデフォルト設定の確認
+            user_default_configPath = Path.Combine(userDataPath, user_defalt_config_filename);
+            if (!File.Exists(user_default_configPath))//フォルダなしの場合
+            {
+                LoadDefaultSetting();
+            }
+            else
+            {
+                LoadDefaultSetting(user_default_configPath);
+            }
+        }
+
+        void DirectoryInitialize()
         {
-            LoadDefaultSetting();
+            //設定等保存フォルダを作成
+            var userpath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MKAS");
+
+            if (!File.Exists(userpath))//フォルダなしの場合
+            {
+                Directory.CreateDirectory(userpath);
+            }
+            userDataPath = userpath;
+
+            //NC保存フォルダ作成
+            var ncpath = Path.Combine(userDataPath, "nc");
+            if (!File.Exists(ncpath))//フォルダなしの場合
+            {
+                Directory.CreateDirectory(ncpath);
+            }
+            ncDataPath = ncpath;
+
+            //ログ保存フォルダ作成
+            var logpath = Path.Combine(userDataPath, "log");
+            if (!File.Exists(logpath))//フォルダなしの場合
+            {
+                Directory.CreateDirectory(logpath);
+            }
+            logDataPath = logpath;
+
+            
         }
 
         public ConfigData GetClonedConfigData()
@@ -55,14 +104,14 @@ namespace MechKineticsArtSoftware
         {
             using (StreamWriter sw = new StreamWriter(file_path))
             {
-                JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
+                JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
                 {
                     // null 値プロパティ除外
                     IgnoreNullValues = true,
                     // 文字コード
                     Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
                     //整形出力
-                    WriteIndented = true
+                    WriteIndented = true,
                 };
                 sw.Write(JsonSerializer.Serialize(cf,jsonSerializerOptions));
                 sw.Flush();

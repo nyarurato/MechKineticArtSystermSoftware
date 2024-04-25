@@ -15,7 +15,9 @@
     [Parameter]
     public int motor_index { get; set; }
 
-    string current_icon = String.Empty;
+    [Parameter]
+    public string current_icon { get; set; }
+
 
     readonly string[] selectable_icon = {
         "",
@@ -75,4 +77,5 @@
 
         return base.OnInitializedAsync();
     }
+
 }

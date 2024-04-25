@@ -133,4 +133,7 @@
   <data name="loadconfig" xml:space="preserve">
     <value>加载配置文件</value>
   </data>
+  <data name="savedefaultconfig" xml:space="preserve">
+    <value>将配置保存为默认值</value>
+  </data>
 </root>

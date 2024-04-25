@@ -1,5 +1,5 @@
 {
-  "kas_version": "0.16",
+  "kas_version": "0.17",
   "num_board_group": 1,
   "boards_info": [
     {
@@ -10,11 +10,11 @@
 
   ],
 
-  "num_motor": 12,
+  "num_motor": 6,
   "nc_file_name": "out",
   "nc_file_name_ext": ".nc",
-  "save_path_on_board": "0://gcodes/mkas/program.nc",
-  "save_nc_path_on_pc_directory": "./nc/",
+  "gcode_dir_on_board": "0://gcodes/",
+  "save_path_on_board": "0://gcodes/mkas_default.nc",
   "save_path_sys_on_board": "0://sys/",
   "motor_assign": {
     "0": "0.0.0",

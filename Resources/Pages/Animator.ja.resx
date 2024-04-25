@@ -167,7 +167,7 @@
     <value>スライダー有効化</value>
   </data>
   <data name="nc_run_message" xml:space="preserve">
-    <value>NCファイルを送信して実行します</value>
+    <value>NCファイルを実行します</value>
   </data>
   <data name="datacontrol" xml:space="preserve">
     <value>データ操作</value>
@@ -195,5 +195,11 @@
   </data>
   <data name="deletekey" xml:space="preserve">
     <value>現在のキーフレームを削除</value>
+  </data>
+  <data name="nc_send_message" xml:space="preserve">
+    <value>NCファイルを送信します</value>
+  </data>
+  <data name="runnc" xml:space="preserve">
+    <value>モーションデータ実行</value>
   </data>
 </root>
